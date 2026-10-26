@@ -1,0 +1,30 @@
+name: subtitle_learn
+description: Learn Mandarin from text and speech you already read and hear. Flutter port of the iOS app.
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  shared_preferences: ^2.3.3
+  flutter_secure_storage: ^9.2.2
+  http: ^1.2.2
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.0
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0
+  fl_chart: ^0.70.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/zh-en.tsv
