@@ -131,7 +131,8 @@ class QuizController extends Notifier<QuizState> {
 
   DateTime get _now => ref.read(clockProvider)();
 
-  Future<void> start() async {
+  /// [focus] limits the quiz to those words, for a review straight after a screen share.
+  Future<void> start({Set<String> focus = const {}}) async {
     final words = ref.read(wordsProvider);
     if (words.isEmpty) return _fail('Save some words on the Translate tab first.');
     if (words.every((w) => w.isMastered)) {
@@ -151,6 +152,7 @@ class QuizController extends Notifier<QuizState> {
       dictionary: dictionary,
       sentenceSource: LevelThreeSentenceSource(cache: ref.read(clozeCacheProvider), apiKey: apiKey),
       now: _now,
+      focus: focus,
     ).build();
 
     if (built.questions.isEmpty) return _fail("Couldn't build any questions. Try saving a few more words.");

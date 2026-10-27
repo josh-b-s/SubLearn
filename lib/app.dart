@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'state/quiz_controller.dart';
 import 'state/reminder_sync.dart';
 import 'state/settings_provider.dart';
+import 'state/tab_provider.dart';
 import 'state/translate_controller.dart';
 import 'ui/onboarding/onboarding_screen.dart';
 import 'ui/quiz/quiz_screen.dart';
+import 'ui/screen_share/screen_share_screen.dart';
 import 'ui/settings/settings_screen.dart';
 import 'ui/theme/app_theme.dart';
 import 'ui/translate/translate_screen.dart';
@@ -39,9 +41,13 @@ class _Shell extends ConsumerStatefulWidget {
 }
 
 class _ShellState extends ConsumerState<_Shell> with WidgetsBindingObserver {
-  int _tab = 0;
-
-  static const _screens = [TranslateScreen(), VocabularyScreen(), QuizScreen(), SettingsScreen()];
+  static const _screens = [
+    TranslateScreen(),
+    ScreenShareScreen(),
+    VocabularyScreen(),
+    QuizScreen(),
+    SettingsScreen(),
+  ];
 
   @override
   void initState() {
@@ -66,22 +72,28 @@ class _ShellState extends ConsumerState<_Shell> with WidgetsBindingObserver {
   void _refreshReminders() => ref.read(reminderSyncProvider)();
 
   void _select(int index) {
-    if (index != 0) ref.read(translateControllerProvider.notifier).stopListening();
-    setState(() => _tab = index);
+    if (index != AppTab.translate.index) ref.read(translateControllerProvider.notifier).stopListening();
+    ref.read(tabProvider.notifier).select(AppTab.values[index]);
   }
 
   @override
   Widget build(BuildContext context) {
     final inQuiz = ref.watch(quizControllerProvider.select((s) => s.isInProgress));
+    final tab = ref.watch(tabProvider);
     return Scaffold(
-      body: IndexedStack(index: _tab, children: _screens),
-      bottomNavigationBar: inQuiz && _tab == 2
+      body: IndexedStack(index: tab.index, children: _screens),
+      bottomNavigationBar: inQuiz && tab == AppTab.quiz
           ? null
           : NavigationBar(
-              selectedIndex: _tab,
+              selectedIndex: tab.index,
               onDestinationSelected: _select,
               destinations: const [
                 NavigationDestination(icon: Icon(Icons.swap_horiz), label: 'Translate'),
+                NavigationDestination(
+                  icon: Icon(Icons.picture_in_picture_alt_outlined),
+                  selectedIcon: Icon(Icons.picture_in_picture_alt),
+                  label: 'Screen Share',
+                ),
                 NavigationDestination(icon: Icon(Icons.bookmark_border), selectedIcon: Icon(Icons.bookmark), label: 'Vocabulary'),
                 NavigationDestination(icon: Icon(Icons.psychology_outlined), selectedIcon: Icon(Icons.psychology), label: 'Quiz'),
                 NavigationDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: 'Settings'),

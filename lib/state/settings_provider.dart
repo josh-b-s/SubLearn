@@ -10,6 +10,7 @@ class AppSettingsState {
     this.preferOnDeviceSpeech = true,
     this.speakSlowly = false,
     this.hideLearnedInTranslate = false,
+    this.hideLearnedInSubtitles = false,
     this.reminderEnabled = false,
     this.reminderMinutes = 19 * 60,
     this.questionsPerQuiz = 8,
@@ -21,6 +22,7 @@ class AppSettingsState {
   final bool preferOnDeviceSpeech;
   final bool speakSlowly;
   final bool hideLearnedInTranslate;
+  final bool hideLearnedInSubtitles;
   final bool reminderEnabled;
 
   /// Minutes after midnight.
@@ -35,6 +37,7 @@ class SettingsNotifier extends Notifier<AppSettingsState> {
   static const _onDevice = 'preferOnDeviceSpeech';
   static const _slow = 'speakSlowly';
   static const _hideTranslate = 'hideLearnedInTranslate';
+  static const _hideSubtitles = 'hideLearnedInSubtitles';
   static const _reminderOn = 'reminderEnabled';
   static const _reminderMinutes = 'reminderMinutes';
   static const _questions = 'questionsPerQuiz';
@@ -50,6 +53,7 @@ class SettingsNotifier extends Notifier<AppSettingsState> {
       preferOnDeviceSpeech: p.getBool(_onDevice) ?? defaults.preferOnDeviceSpeech,
       speakSlowly: p.getBool(_slow) ?? defaults.speakSlowly,
       hideLearnedInTranslate: p.getBool(_hideTranslate) ?? defaults.hideLearnedInTranslate,
+      hideLearnedInSubtitles: p.getBool(_hideSubtitles) ?? defaults.hideLearnedInSubtitles,
       reminderEnabled: p.getBool(_reminderOn) ?? defaults.reminderEnabled,
       reminderMinutes: p.getInt(_reminderMinutes) ?? defaults.reminderMinutes,
       questionsPerQuiz: p.getInt(_questions) ?? defaults.questionsPerQuiz,
@@ -62,6 +66,7 @@ class SettingsNotifier extends Notifier<AppSettingsState> {
   void setPreferOnDeviceSpeech(bool v) => _write(_onDevice, v, _copy(preferOnDeviceSpeech: v));
   void setSpeakSlowly(bool v) => _write(_slow, v, _copy(speakSlowly: v));
   void setHideLearnedInTranslate(bool v) => _write(_hideTranslate, v, _copy(hideLearnedInTranslate: v));
+  void setHideLearnedInSubtitles(bool v) => _write(_hideSubtitles, v, _copy(hideLearnedInSubtitles: v));
   void setReminderEnabled(bool v) => _write(_reminderOn, v, _copy(reminderEnabled: v));
   void setReminderMinutes(int v) => _write(_reminderMinutes, v, _copy(reminderMinutes: v));
   void setQuestionsPerQuiz(int v) => _write(_questions, v, _copy(questionsPerQuiz: v));
@@ -73,6 +78,7 @@ class SettingsNotifier extends Notifier<AppSettingsState> {
     bool? preferOnDeviceSpeech,
     bool? speakSlowly,
     bool? hideLearnedInTranslate,
+    bool? hideLearnedInSubtitles,
     bool? reminderEnabled,
     int? reminderMinutes,
     int? questionsPerQuiz,
@@ -84,6 +90,7 @@ class SettingsNotifier extends Notifier<AppSettingsState> {
         preferOnDeviceSpeech: preferOnDeviceSpeech ?? state.preferOnDeviceSpeech,
         speakSlowly: speakSlowly ?? state.speakSlowly,
         hideLearnedInTranslate: hideLearnedInTranslate ?? state.hideLearnedInTranslate,
+        hideLearnedInSubtitles: hideLearnedInSubtitles ?? state.hideLearnedInSubtitles,
         reminderEnabled: reminderEnabled ?? state.reminderEnabled,
         reminderMinutes: reminderMinutes ?? state.reminderMinutes,
         questionsPerQuiz: questionsPerQuiz ?? state.questionsPerQuiz,

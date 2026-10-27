@@ -48,6 +48,17 @@ class SettingsScreen extends ConsumerWidget {
             ],
           ),
           SettingsSection(
+            title: 'Subtitles',
+            footer: 'Screen Share cards for words you already know show only the characters.',
+            children: [
+              SwitchListTile(
+                title: const Text('Hide learned words'),
+                value: settings.hideLearnedInSubtitles,
+                onChanged: notifier.setHideLearnedInSubtitles,
+              ),
+            ],
+          ),
+          SettingsSection(
             title: 'Pronunciation',
             footer: 'Slows the voice for word details and quizzes.',
             children: [

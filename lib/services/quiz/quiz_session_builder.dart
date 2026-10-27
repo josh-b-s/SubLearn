@@ -25,6 +25,7 @@ class QuizSessionBuilder {
     required this.dictionary,
     required this.sentenceSource,
     required this.now,
+    this.focus = const {},
     Random? random,
   }) : _random = random ?? Random();
 
@@ -34,14 +35,15 @@ class QuizSessionBuilder {
   final LevelThreeSentenceSource sentenceSource;
   final DateTime now;
 
+  /// When not empty, asks about every unmastered word in this set instead of the due ones.
+  final Set<String> focus;
+
   final Random _random;
 
   Future<QuizBuild> build() async {
     // Mastered words are never quizzed. Due words first, otherwise any active word.
     final pool = allWords.where((w) => !w.isMastered).toList();
-    final due = pool.where((w) => w.isDue(now)).toList();
-    final source = due.isEmpty ? pool : due;
-    final chosen = (source.toList()..shuffle(_random)).take(count).toList();
+    final chosen = focus.isEmpty ? _pickDue(pool) : (pool.where((w) => focus.contains(w.word)).toList()..shuffle(_random));
 
     final picker = DistractorPicker(
       saved: allWords.map(Candidate.fromSaved).where((c) => c.meanings.isNotEmpty).toList(),
@@ -57,6 +59,12 @@ class QuizSessionBuilder {
       if (q != null) questions.add(q);
     }
     return (questions: questions, note: loaded.note);
+  }
+
+  List<SavedWord> _pickDue(List<SavedWord> pool) {
+    final due = pool.where((w) => w.isDue(now)).toList();
+    final source = due.isEmpty ? pool : due;
+    return (source.toList()..shuffle(_random)).take(count).toList();
   }
 
   QuizQuestion? _question(

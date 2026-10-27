@@ -19,6 +19,13 @@ class OnboardingPage {
       note: 'In Settings you can choose on-device or server speech recognition.',
     ),
     OnboardingPage(
+      icon: Icons.picture_in_picture_alt_outlined,
+      title: 'Subtitles over any video',
+      text:
+          'Start a screen share to get live Mandarin subtitles for audio playing on your phone. Word cards float in a small window above other apps, and a summary afterwards shows the words you heard most.',
+      note: 'Available on iOS. Other platforms show a message instead.',
+    ),
+    OnboardingPage(
       icon: Icons.bookmark_border,
       title: 'Keep the words you save',
       text:
