@@ -15,6 +15,16 @@ subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
+// Some plugins (app_settings) still compile against SDK 33, which their own androidx dependencies reject.
+subprojects {
+    afterEvaluate {
+        if (project.hasProperty("android")) {
+            project.extensions.configure<com.android.build.gradle.BaseExtension>("android") {
+                compileSdkVersion(36)
+            }
+        }
+    }
+}
 subprojects {
     project.evaluationDependsOn(":app")
 }
