@@ -5,6 +5,7 @@ import '../../models/word_token.dart';
 import '../../services/dictionary/han.dart';
 import '../theme/app_colors.dart';
 import 'cloze_word_card.dart';
+import 'dashed_border_painter.dart';
 import 'option_button.dart';
 import 'quiz_columns_view.dart';
 import 'quiz_prompt_card.dart';
@@ -100,16 +101,25 @@ class _ClozeQuestionViewState extends State<ClozeQuestionView> {
   Widget _blank(BuildContext context) {
     final selection = widget.selection;
     final revealed = widget.isRevealed;
+    final isOpen = selection == null && !revealed;
     final color = revealed ? context.successText : (selection == null ? context.mutedText : context.accent);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(ClozeWordCard.cornerRadius),
-        border: Border.all(color: revealed ? Colors.green : context.accent, width: 2),
-      ),
-      child: Text(
-        revealed ? widget.question.answer : (selection ?? '＿＿'),
-        style: TextStyle(fontSize: ClozeWordCard.wordSize, fontWeight: FontWeight.bold, color: color),
+    return Semantics(
+      label: 'Blank in the sentence',
+      value: revealed ? widget.question.answer : (selection ?? 'Empty'),
+      excludeSemantics: true,
+      child: CustomPaint(
+        foregroundPainter: DashedBorderPainter(
+          color: revealed ? Colors.green : context.accent,
+          radius: ClozeWordCard.cornerRadius,
+          dash: isOpen ? 5 : null,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Text(
+            revealed ? widget.question.answer : (selection ?? '＿＿'),
+            style: TextStyle(fontSize: ClozeWordCard.wordSize, fontWeight: FontWeight.bold, color: color),
+          ),
+        ),
       ),
     );
   }

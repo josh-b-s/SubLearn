@@ -10,7 +10,7 @@ class AppSettingsState {
     this.preferOnDeviceSpeech = true,
     this.speakSlowly = false,
     this.hideLearnedInTranslate = false,
-    this.hideLearnedInSubtitles = false,
+    this.hideLearnedInSubtitles = true,
     this.reminderEnabled = false,
     this.reminderMinutes = 19 * 60,
     this.questionsPerQuiz = 8,

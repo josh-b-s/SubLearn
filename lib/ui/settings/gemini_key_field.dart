@@ -1,9 +1,10 @@
+import 'package:flutter/cupertino.dart' show CupertinoTextField, OverlayVisibilityMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../state/gemini_key_provider.dart';
 
-/// Saves on submit or when the field loses focus, not on every keystroke.
+/// Saves on every change, like the Swift app.
 class GeminiKeyField extends ConsumerStatefulWidget {
   const GeminiKeyField({super.key});
 
@@ -31,19 +32,18 @@ class _GeminiKeyFieldState extends ConsumerState<GeminiKeyField> {
       _loaded = true;
     }
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Focus(
-        onFocusChange: (focused) {
-          if (!focused && _loaded) _save();
-        },
-        child: TextField(
-          controller: _controller,
-          obscureText: true,
-          autocorrect: false,
-          enableSuggestions: false,
-          decoration: const InputDecoration(labelText: 'Gemini API key'),
-          onSubmitted: (_) => _save(),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: CupertinoTextField(
+        controller: _controller,
+        placeholder: 'Gemini API key',
+        obscureText: true,
+        autocorrect: false,
+        enableSuggestions: false,
+        textCapitalization: TextCapitalization.none,
+        decoration: null,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        clearButtonMode: OverlayVisibilityMode.editing,
+        onChanged: (_) => _save(),
       ),
     );
   }

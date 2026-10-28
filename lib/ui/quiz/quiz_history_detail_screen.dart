@@ -18,16 +18,24 @@ class QuizHistoryDetailScreen extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Text(
-              '${record.correctCount} of ${record.items.length} right on the first try',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: context.mutedText),
+            child: Semantics(
+              header: true,
+              child: Text(
+                '${record.correctCount} of ${record.items.length} right on the first try',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(color: context.mutedText),
+              ),
             ),
           ),
           for (final item in record.items)
-            ListTile(
-              leading: Icon(item.correct ? Icons.check_circle : Icons.cancel, color: item.correct ? Colors.green : Colors.red),
-              title: Text(item.prompt, style: const TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: Text('Answer: ${item.answer}'),
+            MergeSemantics(
+              child: ListTile(
+                leading: Semantics(
+                  label: item.correct ? 'Correct' : 'Incorrect',
+                  child: Icon(item.correct ? Icons.check_circle : Icons.cancel, color: item.correct ? Colors.green : Colors.red),
+                ),
+                title: Text(item.prompt, style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text('Answer: ${item.answer}'),
+              ),
             ),
         ],
       ),

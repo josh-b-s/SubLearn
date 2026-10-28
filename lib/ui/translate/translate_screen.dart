@@ -1,10 +1,14 @@
+import 'package:flutter/cupertino.dart' show CupertinoButton, CupertinoIcons, CupertinoTextField;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../state/dictionary_provider.dart';
 import '../../state/settings_provider.dart';
 import '../../state/translate_controller.dart';
 import '../../state/words_provider.dart';
+import '../components/alerts.dart';
+import '../components/pill_chip.dart';
 import '../components/section_label.dart';
 import '../components/word_card.dart';
 import '../components/word_detail_sheet.dart';
@@ -60,6 +64,8 @@ class _TranslateScreenState extends ConsumerState<TranslateScreen> with WidgetsB
     final tokens = ref.watch(translateTokensProvider);
     final hideLearned = ref.watch(settingsProvider.select((s) => s.hideLearnedInTranslate));
 
+    ref.listen(wordsProvider.select((w) => w.length), (_, __) => HapticFeedback.selectionClick());
+
     // Speech updates the text from outside the field, so mirror it in.
     ref.listen(translateControllerProvider.select((s) => s.inputText), (_, text) {
       if (_input.text != text) _input.text = text;
@@ -67,14 +73,7 @@ class _TranslateScreenState extends ConsumerState<TranslateScreen> with WidgetsB
     });
     ref.listen(translateControllerProvider.select((s) => s.speechError), (_, error) {
       if (error == null) return;
-      showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Speech input'),
-          content: Text(error),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
-        ),
-      ).then((_) => controller.clearError());
+      showMessageAlert(context, title: 'Speech input', message: error).then((_) => controller.clearError());
     });
 
     return Scaffold(
@@ -120,25 +119,32 @@ class _InputCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
-            child: TextField(
+            child: CupertinoTextField(
               controller: controller,
               onChanged: onChanged,
               minLines: 1,
               maxLines: 6,
-              style: Theme.of(context).textTheme.titleLarge,
-              decoration: const InputDecoration(
-                hintText: 'Paste or type Chinese text…',
-                border: InputBorder.none,
-              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+              placeholder: 'Paste or type Chinese text…',
+              decoration: null,
+              padding: const EdgeInsets.symmetric(vertical: 10),
             ),
           ),
-          IconButton.filledTonal(
-            tooltip: 'Speak Chinese',
-            onPressed: () {
-              FocusScope.of(context).unfocus();
-              onMic();
-            },
-            icon: const Icon(Icons.mic),
+          Semantics(
+            button: true,
+            label: 'Speak Chinese',
+            hint: 'Starts the microphone and turns what you say into text',
+            excludeSemantics: true,
+            onTap: onMic,
+            child: CupertinoButton.filled(
+              padding: const EdgeInsets.all(10),
+              borderRadius: BorderRadius.circular(20),
+              onPressed: () {
+                FocusScope.of(context).unfocus();
+                onMic();
+              },
+              child: const Icon(CupertinoIcons.mic_fill, size: 20),
+            ),
           ),
         ],
       ),
@@ -167,7 +173,7 @@ class _Breakdown extends ConsumerWidget {
     }
     if (!dictionary.hasValue) {
       return const Row(children: [
-        SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+        SizedBox(width: 20, height: 20, child: CircularProgressIndicator.adaptive(strokeWidth: 2)),
         SizedBox(width: 8),
         Text('Loading dictionary…'),
       ]);
@@ -185,12 +191,12 @@ class _Breakdown extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const SectionLabel('INTERACTIVE BREAKDOWN'),
-              FilterChip(
-                avatar: const Icon(Icons.visibility_off, size: 18),
-                label: const Text('Hide learned'),
+              PillChip(
+                icon: CupertinoIcons.eye_slash,
+                label: 'Hide learned',
                 selected: hideLearned,
-                onSelected: ref.read(settingsProvider.notifier).setHideLearnedInTranslate,
-                tooltip: 'Hides the pinyin and meaning of words you already know',
+                onTap: () => ref.read(settingsProvider.notifier).setHideLearnedInTranslate(!hideLearned),
+                hint: 'Hides the pinyin and meaning of words you already know',
               ),
             ],
           ),

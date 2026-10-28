@@ -14,31 +14,33 @@ class QuizDueBanner extends StatelessWidget {
     final subtitle = dueCount > 0
         ? 'Ready for review today'
         : '$activeCount word${activeCount == 1 ? '' : 's'} still being learned';
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: scheme.primary, borderRadius: BorderRadius.circular(22)),
-      child: Row(
-        spacing: 16,
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: scheme.onPrimary.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(14),
+    return MergeSemantics(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(color: scheme.primary, borderRadius: BorderRadius.circular(22)),
+        child: Row(
+          spacing: 16,
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: scheme.onPrimary.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: ExcludeSemantics(child: Icon(Icons.calendar_today, size: 28, color: scheme.onPrimary)),
             ),
-            child: Icon(Icons.calendar_today, size: 28, color: scheme.onPrimary),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: scheme.onPrimary)),
-                Text(subtitle, style: TextStyle(color: scheme.onPrimary.withValues(alpha: 0.85))),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: scheme.onPrimary)),
+                  Text(subtitle, style: TextStyle(color: scheme.onPrimary.withValues(alpha: 0.85))),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

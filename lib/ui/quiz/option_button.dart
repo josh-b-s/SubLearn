@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../components/pressable.dart';
 import '../theme/app_colors.dart';
 
 enum OptionState {
@@ -61,43 +63,62 @@ class OptionButton extends StatelessWidget {
       OptionState.correct => 'Correct answer',
       OptionState.wrong => 'Wrong answer',
     };
+    final resolved = state == OptionState.correct || state == OptionState.wrong;
+    final letterColor = switch (state) {
+      OptionState.idle => context.mutedText,
+      OptionState.selected => border,
+      _ => textColor,
+    };
     return Semantics(
       button: true,
-      selected: state == OptionState.selected,
+      selected: state != OptionState.idle,
+      label: [letter, text, subtitle].whereType<String>().where((p) => p.isNotEmpty).join(', '),
       value: stateLabel,
-      child: Material(
-        color: fill,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: border, width: state == OptionState.idle ? 1 : 2),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: isLocked ? null : onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-            child: Row(
-              children: [
-                if (letter != null) ...[
-                  Text(letter!, style: TextStyle(fontWeight: FontWeight.bold, color: context.mutedText)),
-                  const SizedBox(width: 12),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(text, style: TextStyle(fontSize: fontSize, color: textColor)),
-                      if (subtitle != null && subtitle!.isNotEmpty)
-                        Text(subtitle!, style: TextStyle(color: context.mutedText)),
-                    ],
+      hint: isLocked ? '' : 'Double tap to choose this answer',
+      excludeSemantics: true,
+      onTap: isLocked ? null : _choose,
+      child: Pressable(
+        child: Material(
+          color: fill,
+          elevation: state == OptionState.idle ? 1 : 0,
+          shadowColor: const Color(0x0F000000),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(color: border, width: state == OptionState.idle ? 1 : 2),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: isLocked ? null : _choose,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              child: Row(
+                children: [
+                  if (letter != null) ...[
+                    Text(letter!, style: TextStyle(fontWeight: FontWeight.bold, color: letterColor)),
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(text, style: TextStyle(fontSize: fontSize, color: textColor)),
+                        if (subtitle != null && subtitle!.isNotEmpty)
+                          Text(subtitle!, style: TextStyle(color: resolved ? textColor : context.mutedText)),
+                      ],
+                    ),
                   ),
-                ),
-                if (icon != null) Icon(icon, color: border),
-              ],
+                  if (icon != null) Icon(icon, color: border),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  void _choose() {
+    HapticFeedback.selectionClick();
+    onTap();
   }
 }

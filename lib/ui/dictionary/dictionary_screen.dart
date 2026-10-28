@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
+import '../components/icon_action.dart';
 import '../components/word_detail_sheet.dart';
 import '../vocabulary/custom_word_form.dart';
 import 'dictionary_results_list.dart';
@@ -22,9 +24,9 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
       appBar: AppBar(
         title: const Text('Dictionary'),
         actions: [
-          IconButton(
-            tooltip: 'Add custom word',
-            icon: const Icon(Icons.add),
+          IconAction(
+            label: 'Add custom word',
+            icon: CupertinoIcons.add,
             onPressed: () => showCustomWordForm(context, initialWord: _query),
           ),
         ],

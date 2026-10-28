@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../state/settings_provider.dart';
+import 'icon_action.dart';
 
 /// Toolbar button that turns slow speech on or off.
 class SlowSpeechButton extends ConsumerWidget {
@@ -10,11 +12,9 @@ class SlowSpeechButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final slow = ref.watch(settingsProvider.select((s) => s.speakSlowly));
-    return IconButton(
-      tooltip: slow ? 'Speak slowly: on' : 'Speak slowly: off',
-      isSelected: slow,
-      icon: const Icon(Icons.slow_motion_video_outlined),
-      selectedIcon: const Icon(Icons.slow_motion_video),
+    return IconAction(
+      label: slow ? 'Speak slowly: on' : 'Speak slowly: off',
+      icon: slow ? CupertinoIcons.tortoise_fill : CupertinoIcons.tortoise,
       onPressed: () => ref.read(settingsProvider.notifier).setSpeakSlowly(!slow),
     );
   }

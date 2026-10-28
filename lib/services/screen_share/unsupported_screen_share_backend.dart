@@ -27,7 +27,13 @@ class UnsupportedScreenShareBackend implements ScreenShareBackend {
   Future<void> showBroadcastPicker() async {}
 
   @override
-  Future<void> stop({required ScreenShareSource source}) async {}
+  Future<void> stop({required ScreenShareSource source, Set<String>? keepClipsFor}) async {}
+
+  @override
+  Future<bool> hasClip(String word) async => false;
+
+  @override
+  Future<void> playClip(String word, {required bool slow}) async {}
 
   @override
   Future<void> updatePip(List<PipLine> lines) async {}

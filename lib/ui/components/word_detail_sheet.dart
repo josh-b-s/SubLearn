@@ -5,10 +5,13 @@ import '../../models/word_token.dart';
 import '../../services/dictionary/dictionary_breakdown.dart';
 import '../../services/vocabulary/saved_word_mastery.dart';
 import '../../state/dictionary_provider.dart';
+import '../../state/word_clip_provider.dart';
 import '../../state/words_provider.dart';
 import '../theme/app_colors.dart';
+import 'alerts.dart';
 import 'character_breakdown.dart';
 import 'mastery_picker.dart';
+import 'replay_clip_button.dart';
 import 'section_label.dart';
 import 'slow_speech_button.dart';
 import 'speak_button.dart';
@@ -38,6 +41,7 @@ class WordDetailSheet extends ConsumerWidget {
       return null;
     }));
     final glosses = ref.watch(dictionaryProvider).valueOrNull?.breakdown(token.text) ?? const [];
+    final hasClip = ref.watch(wordClipProvider(token.text)).valueOrNull ?? false;
     final text = Theme.of(context).textTheme;
 
     return SafeArea(
@@ -57,7 +61,14 @@ class WordDetailSheet extends ConsumerWidget {
                       if (token.pinyin.isNotEmpty)
                         Text(token.pinyin, style: text.headlineSmall?.copyWith(color: context.accent)),
                       const SizedBox(height: 8),
-                      SpeakButton(word: token.text, iconSize: 28),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 12,
+                        children: [
+                          SpeakButton(word: token.text, iconSize: 28),
+                          if (hasClip) ReplayClipButton(word: token.text),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -96,14 +107,17 @@ class WordDetailSheet extends ConsumerWidget {
                 ),
               ),
             ),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                style: saved == null ? null : FilledButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () => saved == null ? _save(context, ref) : _confirmRemove(context, ref),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Text(saved == null ? 'Save to Vocabulary' : 'Remove from Vocabulary'),
+            Semantics(
+              hint: saved == null ? 'Adds this word to your quiz' : 'Deletes this word and its progress',
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  style: saved == null ? null : FilledButton.styleFrom(backgroundColor: Colors.red),
+                  onPressed: () => saved == null ? _save(context, ref) : _confirmRemove(context, ref),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(saved == null ? 'Save to Vocabulary' : 'Remove from Vocabulary'),
+                  ),
                 ),
               ),
             ),
@@ -119,18 +133,14 @@ class WordDetailSheet extends ConsumerWidget {
   }
 
   Future<void> _confirmRemove(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Remove ${token.text}?'),
-        content: const Text('Its level and review history are deleted too.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Remove')),
-        ],
-      ),
+    final confirmed = await showConfirmAlert(
+      context,
+      title: 'Remove ${token.text}?',
+      message: 'Its level and review history are deleted too.',
+      confirmLabel: 'Remove',
+      destructive: true,
     );
-    if (confirmed == true && context.mounted) {
+    if (confirmed && context.mounted) {
       ref.read(wordsProvider.notifier).toggleSaved(token);
       Navigator.pop(context);
     }

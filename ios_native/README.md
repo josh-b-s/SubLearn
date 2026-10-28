@@ -31,7 +31,9 @@ Run `flutter create --platforms=ios .` first if there is no `ios/` folder, then 
    - Replace its entitlements with `SubtitleBroadcast/SubtitleBroadcast.entitlements` and put your group name in it.
    - Set the extension's deployment target to 17.0 and add the same App Group under Signing & Capabilities.
 
-6. **Runner Info.plist** (`ios/Runner/Info.plist`):
+6. **Privacy manifest.** Drag `ios/Runner/PrivacyInfo.xcprivacy` into the Runner group and tick the Runner target. It declares the UserDefaults access that `shared_preferences` makes, the same as the Swift app's manifest.
+
+7. **Runner Info.plist** (`ios/Runner/Info.plist`):
 
    ```xml
    <key>UIBackgroundModes</key>
@@ -44,7 +46,7 @@ Run `flutter create --platforms=ios .` first if there is no `ios/` folder, then 
 
    The first two keys are already there if you followed the main README.
 
-7. **Build phase order.** If the build fails with "Cycle inside Runner", open Runner > Build Phases and drag "Embed Foundation Extensions" (or "Embed App Extensions") above "Thin Binary". This is a known Flutter and extension clash.
+8. **Build phase order.** If the build fails with "Cycle inside Runner", open Runner > Build Phases and drag "Embed Foundation Extensions" (or "Embed App Extensions") above "Thin Binary". This is a known Flutter and extension clash.
 
 ## Trying it
 
@@ -58,4 +60,5 @@ Run `flutter create --platforms=ios .` first if there is no `ios/` folder, then 
 - `Runner/SpeechTranscriber.swift`: `SFSpeechRecognizer` for zh-CN. Restarts after each result, gives up after three failures in a row.
 - `Runner/BroadcastAudioReceiver.swift`: polls the shared folder every 150 ms for 16 kHz chunks.
 - `Runner/PipController.swift`, `PipFrameRenderer.swift`, `PipSubtitleView.swift`, `PipWordCard.swift`, `SubtitleLineLayout.swift`: the PiP window.
+- `Runner/AudioClipRecorder.swift`, `AudioClipStore.swift`, `AudioClipPlayer.swift`, `WavEncoder.swift`: keep a short clip per heard word. Clips are dropped at session end except for saved words, and replayed from the word sheet.
 - `SubtitleBroadcast/`: the extension. Only system audio is used, video frames are ignored.

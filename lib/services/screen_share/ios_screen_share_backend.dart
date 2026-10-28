@@ -37,7 +37,20 @@ class IosScreenShareBackend implements ScreenShareBackend {
   Future<void> showBroadcastPicker() => _invoke('showBroadcastPicker');
 
   @override
-  Future<void> stop({required ScreenShareSource source}) => _invoke('stop', {'source': source.name});
+  Future<void> stop({required ScreenShareSource source, Set<String>? keepClipsFor}) =>
+      _invoke('stop', {'source': source.name, 'keepClipsFor': keepClipsFor?.toList()});
+
+  @override
+  Future<bool> hasClip(String word) async {
+    try {
+      return await _methods.invokeMethod<bool>('hasClip', {'word': word}) ?? false;
+    } on MissingPluginException {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> playClip(String word, {required bool slow}) => _invoke('playClip', {'word': word, 'slow': slow});
 
   @override
   Future<void> updatePip(List<PipLine> lines) => _invoke('updatePip', {'lines': [for (final l in lines) l.toJson()]});

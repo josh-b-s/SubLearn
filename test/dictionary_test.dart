@@ -44,7 +44,7 @@ void main() {
     });
     test('fallback pinyin joins character entries', () {
       final d = ChineseDictionary(entries: {'我': entry('wǒ', ['I']), '们': entry('men', ['plural'])});
-      expect(d.tokens('我们')[0].pinyin, 'wǒmen');
+      expect(d.fallbackPinyin('我们'), 'wǒmen');
     });
   });
 

@@ -21,6 +21,8 @@ final class ScreenShareBridge {
     private let events = ScreenShareEventStream()
     private let transcriber = SpeechTranscriber()
     private let receiver = BroadcastAudioReceiver()
+    private let clips = AudioClipRecorder()
+    private let clipPlayer = AudioClipPlayer()
     private let subtitles = PipSubtitleModel()
     private lazy var pip = makePip()
 
@@ -51,6 +53,7 @@ final class ScreenShareBridge {
             // Creating the PiP controller sets the audio category, so it has to come before the
             // microphone session sets its own.
             _ = pip
+            clips.reset()
             let preferOnDevice = args["preferOnDevice"] as? Bool ?? true
             switch args["source"] as? String {
             case "microphone": Task { result(await startMicrophone(preferOnDevice: preferOnDevice)) }
@@ -60,11 +63,17 @@ final class ScreenShareBridge {
         case "showBroadcastPicker":
             result(showBroadcastPicker())
         case "stop":
-            stop(requestBroadcastEnd: args["source"] as? String == "screen")
+            stop(requestBroadcastEnd: args["source"] as? String == "screen", keepClipsFor: args["keepClipsFor"] as? [String])
             result(nil)
         case "updatePip":
-            subtitles.set(lines: args["lines"] as? [[String: Any]] ?? [])
+            let lines = args["lines"] as? [[String: Any]] ?? []
+            subtitles.set(lines: lines)
+            clips.captureIfAbsent(Self.heardWords(in: lines))
             result(nil)
+        case "hasClip":
+            result(AudioClipStore.hasClip(for: args["word"] as? String ?? ""))
+        case "playClip":
+            clipPlayer.play(word: args["word"] as? String ?? "", slow: args["slow"] as? Bool ?? false, completion: result)
         case "presentPip":
             result(presentPip())
         default:
@@ -107,7 +116,10 @@ final class ScreenShareBridge {
         receiver.resetSharedFolder()
         receiver.start(
             onStarted: { [weak self] in self?.broadcastDidStart(preferOnDevice: preferOnDevice) },
-            onBuffer: { [weak self] buffer in self?.transcriber.appendExternal(buffer) },
+            onBuffer: { [weak self] buffer in
+                self?.clips.append(buffer)
+                self?.transcriber.appendExternal(buffer)
+            },
             onEnded: { [weak self] in self?.events.send("ended") }
         )
         return nil
@@ -152,7 +164,12 @@ final class ScreenShareBridge {
         return run
     }
 
-    private func stop(requestBroadcastEnd: Bool) {
+    /// `keepClipsFor` is the set of words whose clips stay on disk. Nil leaves stored clips alone.
+    private func stop(requestBroadcastEnd: Bool, keepClipsFor: [String]?) {
+        if let keep = keepClipsFor {
+            AudioClipStore.sync(newClips: clips.clips, keeping: Set(keep), sampleRate: Int(BroadcastShared.sampleRate))
+        }
+        clips.reset()
         runID = UUID()
         transcriber.cancel()
         receiver.stop(requestBroadcastEnd: requestBroadcastEnd)
@@ -208,6 +225,14 @@ final class ScreenShareBridge {
     }
 
     // MARK: - Helpers
+
+    /// Words with a dictionary meaning in the lines Dart sent, which are the ones worth a clip.
+    private static func heardWords(in lines: [[String: Any]]) -> [String] {
+        lines
+            .flatMap { $0["tokens"] as? [[String: Any]] ?? [] }
+            .filter { !(($0["meanings"] as? [String]) ?? []).isEmpty }
+            .compactMap { $0["text"] as? String }
+    }
 
     private static func rootView() -> UIView? {
         UIApplication.shared.connectedScenes

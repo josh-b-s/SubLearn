@@ -6,7 +6,7 @@ import '../../state/core_providers.dart';
 import '../theme/app_colors.dart';
 import 'option_button.dart';
 
-/// Two columns of answer options side by side.
+/// Two columns of answer options side by side, stacked once text is too large for two narrow columns.
 class QuizColumnsView extends ConsumerWidget {
   const QuizColumnsView({
     super.key,
@@ -29,13 +29,17 @@ class QuizColumnsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final columns = [
+      _column(context, ref, first, firstSelection, onFirst),
+      _column(context, ref, second, secondSelection, onSecond),
+    ];
+    // Stacked once text is too large for two narrow columns.
+    final stacked = MediaQuery.textScalerOf(context).scale(14) >= 14 * 1.6;
+    if (stacked) return Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: 12, children: columns);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 12,
-      children: [
-        Expanded(child: _column(context, ref, first, firstSelection, onFirst)),
-        Expanded(child: _column(context, ref, second, secondSelection, onSecond)),
-      ],
+      children: [for (final column in columns) Expanded(child: column)],
     );
   }
 
@@ -44,7 +48,10 @@ class QuizColumnsView extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 10,
       children: [
-        Text(column.title, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: context.mutedText, fontWeight: FontWeight.w600)),
+        Semantics(
+          header: true,
+          child: Text(column.title, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: context.mutedText, fontWeight: FontWeight.w600)),
+        ),
         for (final choice in column.choices)
           OptionButton(
             text: choice,

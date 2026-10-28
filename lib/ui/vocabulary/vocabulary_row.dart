@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
 import '../../models/mastery_status.dart';
@@ -23,6 +24,7 @@ class VocabularyRow extends StatelessWidget {
     return Semantics(
       value: status == MasteryStatus.mastered ? status.label : '${status.label}, level ${word.masteryLabel}',
       selected: picked == true,
+      hint: picked == null ? 'Opens the word details' : 'Selects this word for deletion',
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
@@ -48,7 +50,7 @@ class VocabularyRow extends StatelessWidget {
                 ],
               ),
             ),
-            if (picked == null) Icon(Icons.chevron_right, color: context.mutedText),
+            if (picked == null) Icon(CupertinoIcons.chevron_forward, color: context.mutedText),
           ],
         ),
       ),

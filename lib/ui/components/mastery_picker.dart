@@ -22,10 +22,10 @@ class _MasteryPickerState extends State<MasteryPicker> {
   double get _shown => _draft ?? widget.progress;
 
   String get _caption => switch (Mastery.stateForScore(_shown).level) {
-        1 => 'Cards show its meaning and pinyin.',
-        2 => 'Cards hide its meaning.',
-        3 => 'Cards hide its meaning and pinyin.',
-        _ => 'Hidden on cards and never quizzed.',
+        1 => 'Subtitles show its meaning and pinyin.',
+        2 => 'Subtitles hide its meaning.',
+        3 => 'Subtitles hide its meaning and pinyin.',
+        _ => 'Hidden in subtitles and never quizzed.',
       };
 
   @override
@@ -38,22 +38,29 @@ class _MasteryPickerState extends State<MasteryPicker> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const SectionLabel('MASTERY'),
-            Text(summary, style: const TextStyle(fontWeight: FontWeight.w600)),
+            ExcludeSemantics(child: Text(summary, style: const TextStyle(fontWeight: FontWeight.w600))),
           ],
         ),
-        Slider(
-          value: _shown.clamp(1, Mastery.masteredLevel.toDouble()).toDouble(),
-          min: 1,
-          max: Mastery.masteredLevel.toDouble(),
-          divisions: ((Mastery.masteredLevel - 1) / Mastery.scoreStep).round(),
-          label: summary,
-          onChanged: (v) => setState(() => _draft = v),
-          onChangeEnd: (v) {
-            setState(() => _draft = null);
-            widget.onChanged(v);
-          },
+        Semantics(
+          label: 'Mastery',
+          value: summary,
+          hint: _caption,
+          child: Slider(
+            value: _shown.clamp(1, Mastery.masteredLevel.toDouble()).toDouble(),
+            min: 1,
+            max: Mastery.masteredLevel.toDouble(),
+            divisions: ((Mastery.masteredLevel - 1) / Mastery.scoreStep).round(),
+            label: summary,
+            onChanged: (v) => setState(() => _draft = v),
+            onChangeEnd: (v) {
+              setState(() => _draft = null);
+              widget.onChanged(v);
+            },
+          ),
         ),
-        Text(_caption, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.mutedText)),
+        ExcludeSemantics(
+          child: Text(_caption, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.mutedText)),
+        ),
       ],
     );
   }

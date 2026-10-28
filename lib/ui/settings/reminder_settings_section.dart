@@ -1,9 +1,12 @@
+import 'package:app_settings/app_settings.dart';
+import 'package:flutter/cupertino.dart' show CupertinoDatePicker, CupertinoDatePickerMode, CupertinoButton, showCupertinoModalPopup;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../state/core_providers.dart';
 import '../../state/reminder_sync.dart';
 import '../../state/settings_provider.dart';
+import '../components/alerts.dart';
 import '../theme/app_colors.dart';
 
 /// Settings section for the daily review reminder. Hidden where notifications aren't supported.
@@ -20,14 +23,13 @@ class ReminderSettingsSection extends ConsumerWidget {
     Future<void> toggled(bool enabled) async {
       if (enabled && !await ref.read(reminderSchedulerProvider).requestAuthorization()) {
         if (context.mounted) {
-          await showDialog<void>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Notifications are off'),
-              content: const Text('Allow notifications for Subtitle Learn in your device settings to get review reminders.'),
-              actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
-            ),
+          final openSettings = await showConfirmAlert(
+            context,
+            title: 'Notifications are off',
+            message: 'Allow notifications for Subtitle Learn in your device settings to get review reminders.',
+            confirmLabel: 'Open Settings',
           );
+          if (openSettings) AppSettings.openAppSettings(type: AppSettingsType.notification);
         }
         return;
       }
@@ -36,36 +38,53 @@ class ReminderSettingsSection extends ConsumerWidget {
     }
 
     Future<void> pickTime() async {
-      final picked = await showTimePicker(
+      var chosen = minutes;
+      await showCupertinoModalPopup<void>(
         context: context,
-        initialTime: TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60),
+        builder: (context) => Container(
+          height: 280,
+          color: context.cardBackground,
+          child: SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: CupertinoButton(onPressed: () => Navigator.pop(context), child: const Text('Done')),
+                ),
+                Expanded(
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.time,
+                    initialDateTime: DateTime(2000, 1, 1, minutes ~/ 60, minutes % 60),
+                    onDateTimeChanged: (d) => chosen = d.hour * 60 + d.minute,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
-      if (picked == null) return;
-      notifier.setReminderMinutes(picked.hour * 60 + picked.minute);
+      if (chosen == minutes) return;
+      notifier.setReminderMinutes(chosen);
       await sync();
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SwitchListTile(
+        SwitchListTile.adaptive(
           title: const Text('Daily review reminder'),
           value: settings.reminderEnabled,
           onChanged: toggled,
         ),
-        if (settings.reminderEnabled)
+        if (settings.reminderEnabled) ...[
+          const Divider(height: 1, thickness: 0.5, indent: 16),
           ListTile(
             title: const Text('Time'),
             trailing: Text(TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60).format(context)),
             onTap: pickTime,
           ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Text(
-            'Sends a notification at this time on days when words are due for review. Turning it on asks for permission to send notifications.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.mutedText),
-          ),
-        ),
+        ],
       ],
     );
   }

@@ -15,6 +15,8 @@ class SpeechInputException implements Exception {
 /// Microphone transcription that keeps going across the platform's per-session time limit.
 class SpeechInput {
   static const _maxFailures = 3;
+  static const _onDeviceUnavailable =
+      "On-device recognition isn't available here (the Simulator doesn't support it). Turn it off in Settings > Speech.";
   static const _benignErrors = {'error_no_match', 'error_speech_timeout'};
 
   final _speech = SpeechToText();
@@ -113,7 +115,7 @@ class SpeechInput {
     if (_failures >= _maxFailures) {
       _active = false;
       _accepting = false;
-      _onFailure?.call('Speech recognition stopped: ${error.errorMsg}');
+      _onFailure?.call(_onDevice && error.errorMsg.contains('1101') ? _onDeviceUnavailable : 'Speech recognition stopped: ${error.errorMsg}');
     }
   }
 }

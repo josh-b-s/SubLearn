@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoActionSheet, CupertinoActionSheetAction, CupertinoIcons, CupertinoPageRoute, CupertinoSearchTextField, showCupertinoModalPopup;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +12,8 @@ import '../../state/clock_provider.dart';
 import '../../state/review_logs_provider.dart';
 import '../../state/settings_provider.dart';
 import '../../state/words_provider.dart';
+import '../components/icon_action.dart';
+import '../components/alerts.dart';
 import '../components/empty_state.dart';
 import '../components/word_detail_sheet.dart';
 import '../dictionary/dictionary_screen.dart';
@@ -51,18 +54,14 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
 
   Future<bool> _confirmDelete(List<SavedWord> doomed) async {
     final title = doomed.length == 1 ? 'Delete this word?' : 'Delete ${doomed.length} words?';
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: const Text('Their level and review history are deleted too.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
-        ],
-      ),
+    final confirmed = await showConfirmAlert(
+      context,
+      title: title,
+      message: 'Their level and review history are deleted too.',
+      confirmLabel: 'Delete',
+      destructive: true,
     );
-    if (confirmed != true) return false;
+    if (!confirmed) return false;
     ref.read(wordsProvider.notifier).remove({for (final w in doomed) w.word});
     return true;
   }
@@ -93,15 +92,15 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
                 ),
               ]
             : [
-                IconButton(
-                  tooltip: 'Dictionary',
-                  icon: const Icon(Icons.translate),
-                  onPressed: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const DictionaryScreen())),
+                IconAction(
+                  label: 'Dictionary',
+                  icon: CupertinoIcons.textformat_abc,
+                  onPressed: () => Navigator.push(context, CupertinoPageRoute<void>(builder: (_) => const DictionaryScreen())),
                 ),
-                IconButton(
-                  tooltip: 'Add known word',
-                  icon: const Icon(Icons.add),
-                  onPressed: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const AddKnownWordScreen())),
+                IconAction(
+                  label: 'Add known word',
+                  icon: CupertinoIcons.add,
+                  onPressed: () => Navigator.push(context, CupertinoPageRoute<void>(builder: (_) => const AddKnownWordScreen())),
                 ),
               ],
       ),
@@ -115,14 +114,9 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: TextField(
+                  child: CupertinoSearchTextField(
+                    placeholder: 'Search vocabulary…',
                     onChanged: (v) => setState(() => _query = v),
-                    decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.search),
-                      hintText: 'Search vocabulary…',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
-                      isDense: true,
-                    ),
                   ),
                 ),
                 Row(
@@ -142,7 +136,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
                 Expanded(
                   child: filtered.isEmpty
                       ? EmptyState(
-                          icon: Icons.search,
+                          icon: CupertinoIcons.search,
                           title: 'No words found',
                           description: _query.isNotEmpty
                               ? 'No matches for "$_query".'
@@ -178,7 +172,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
         color: Colors.red,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: const Icon(CupertinoIcons.delete, color: Colors.white),
       ),
       child: tile,
     );
@@ -189,14 +183,28 @@ class _SortMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sort = ref.watch(settingsProvider.select((s) => s.vocabularySort));
-    return PopupMenuButton<VocabularySort>(
-      tooltip: 'Sort: ${sort.label}',
-      icon: const Icon(Icons.swap_vert),
-      initialValue: sort,
-      onSelected: ref.read(settingsProvider.notifier).setVocabularySort,
-      itemBuilder: (_) => [
-        for (final option in VocabularySort.values) PopupMenuItem(value: option, child: Text(option.label)),
-      ],
+    final notifier = ref.read(settingsProvider.notifier);
+    return IconAction(
+      label: 'Sort: ${sort.label}',
+      icon: CupertinoIcons.arrow_up_arrow_down,
+      onPressed: () => showCupertinoModalPopup<void>(
+        context: context,
+        builder: (context) => CupertinoActionSheet(
+          title: const Text('Sort by'),
+          actions: [
+            for (final option in VocabularySort.values)
+              CupertinoActionSheetAction(
+                isDefaultAction: option == sort,
+                onPressed: () {
+                  notifier.setVocabularySort(option);
+                  Navigator.pop(context);
+                },
+                child: Text(option.label),
+              ),
+          ],
+          cancelButton: CupertinoActionSheetAction(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        ),
+      ),
     );
   }
 }

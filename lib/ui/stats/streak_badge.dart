@@ -12,19 +12,25 @@ class StreakBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final active = days > 0;
     final color = active ? Colors.black : context.mutedText;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: active ? Colors.orange : context.chipBackground,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 6,
-        children: [
-          Icon(Icons.local_fire_department, size: 18, color: color),
-          Text('$days day${days == 1 ? '' : 's'}', style: TextStyle(fontWeight: FontWeight.bold, color: color)),
-        ],
+    final label = '$days day${days == 1 ? '' : 's'}';
+    return Semantics(
+      label: 'Streak',
+      value: label,
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: active ? Colors.orange : context.chipBackground,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 6,
+          children: [
+            Icon(Icons.local_fire_department, size: 18, color: color),
+            Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+          ],
+        ),
       ),
     );
   }

@@ -13,18 +13,29 @@ class QuizProgressHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    return Column(
-      spacing: 8,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('$index / $total', style: text.titleMedium?.copyWith(color: context.accent, fontWeight: FontWeight.w600)),
-            Text('${(fraction * 100).round()}% Complete', style: text.bodyMedium?.copyWith(color: context.mutedText)),
-          ],
-        ),
-        LinearProgressIndicator(value: fraction, borderRadius: BorderRadius.circular(4)),
-      ],
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    return Semantics(
+      label: 'Quiz progress',
+      value: 'Question $index of $total',
+      excludeSemantics: true,
+      child: Column(
+        spacing: 8,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('$index / $total', style: text.titleMedium?.copyWith(color: context.accent, fontWeight: FontWeight.w600)),
+              Text('${(fraction * 100).round()}% Complete', style: text.bodyMedium?.copyWith(color: context.mutedText)),
+            ],
+          ),
+          TweenAnimationBuilder<double>(
+            tween: Tween(end: fraction),
+            duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+            builder: (_, value, __) => LinearProgressIndicator(value: value, borderRadius: BorderRadius.circular(4)),
+          ),
+        ],
+      ),
     );
   }
 }

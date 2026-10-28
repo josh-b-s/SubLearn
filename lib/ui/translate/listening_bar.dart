@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
+import '../components/pill_chip.dart';
 import '../theme/app_colors.dart';
 
 /// Pinned bar shown while recording: status, the hide-learned toggle, and a one-tap stop.
@@ -30,11 +32,12 @@ class ListeningBar extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.graphic_eq, color: Colors.red),
+                  const _Pulse(child: Icon(Icons.graphic_eq, color: Colors.red)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Semantics(
                       liveRegion: true,
+                      container: true,
                       child: Text(
                         hasTranscript ? 'Listening…' : 'Listening, start speaking…',
                         style: TextStyle(color: context.mutedText),
@@ -42,23 +45,31 @@ class ListeningBar extends StatelessWidget {
                     ),
                   ),
                   if (hasTranscript)
-                    FilterChip(
-                      avatar: const Icon(Icons.visibility_off, size: 18),
-                      label: const Text('Hide learned'),
+                    PillChip(
+                      icon: CupertinoIcons.eye_slash,
+                      label: 'Hide learned',
                       selected: hideLearned,
-                      onSelected: onHideLearnedChanged,
-                      tooltip: 'Hides the pinyin and meaning of words you already know',
+                      onTap: () => onHideLearnedChanged(!hideLearned),
+                      hint: 'Hides the pinyin and meaning of words you already know',
                     ),
                 ],
               ),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.icon(
-                  style: FilledButton.styleFrom(backgroundColor: Colors.red, padding: const EdgeInsets.all(14)),
+                child: Semantics(
+                  hint: 'Stops listening and keeps the transcript',
+                  child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    minimumSize: const Size.fromHeight(52),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  ),
                   onPressed: onStop,
-                  icon: const Icon(Icons.stop),
+                  icon: const _Pulse(child: Icon(Icons.stop)),
                   label: const Text('Stop recording'),
+                  ),
                 ),
               ),
             ],
@@ -67,4 +78,39 @@ class ListeningBar extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Slow fade in and out; static when the system asks for reduced motion.
+class _Pulse extends StatefulWidget {
+  const _Pulse({required this.child});
+  final Widget child;
+
+  @override
+  State<_Pulse> createState() => _PulseState();
+}
+
+class _PulseState extends State<_Pulse> with SingleTickerProviderStateMixin {
+  late final _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.stop();
+      _controller.value = 1;
+    } else if (!_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+        child: FadeTransition(opacity: Tween(begin: 0.4, end: 1.0).animate(_controller), child: widget.child),
+      );
 }

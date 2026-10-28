@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,7 +27,10 @@ class QuizHome extends ConsumerWidget {
             children: [
               QuizDueBanner(dueCount: dueCount, activeCount: activeCount),
               const SizedBox(height: 24),
-              Text('History', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              Semantics(
+                header: true,
+                child: Text('History', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              ),
               const SizedBox(height: 12),
               if (records.isEmpty)
                 Text('Quizzes you take show up here.', style: TextStyle(color: context.mutedText))
@@ -38,7 +42,7 @@ class QuizHome extends ConsumerWidget {
                       record: record,
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute<void>(builder: (_) => QuizHistoryDetailScreen(record: record)),
+                        CupertinoPageRoute<void>(builder: (_) => QuizHistoryDetailScreen(record: record)),
                       ),
                     ),
                   ),
@@ -49,11 +53,14 @@ class QuizHome extends ConsumerWidget {
           top: false,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: onStart,
-                child: const Padding(padding: EdgeInsets.all(8), child: Text('Start Review Session')),
+            child: Semantics(
+              hint: 'Starts a quiz on the words that are due',
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: onStart,
+                  child: const Padding(padding: EdgeInsets.all(8), child: Text('Start Review Session')),
+                ),
               ),
             ),
           ),

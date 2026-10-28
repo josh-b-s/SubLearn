@@ -46,7 +46,7 @@ class _DictionaryResultsListState extends ConsumerState<DictionaryResultsList> {
     final results = search.valueOrNull ?? _previous;
     if (search.hasValue) _previous = search.value!;
 
-    if (search.isLoading && results.isEmpty) return const Center(child: CircularProgressIndicator());
+    if (search.isLoading && results.isEmpty) return const Center(child: CircularProgressIndicator.adaptive());
     if (results.isEmpty) {
       return EmptyState(
         icon: Icons.search_off,
@@ -63,10 +63,13 @@ class _DictionaryResultsListState extends ConsumerState<DictionaryResultsList> {
         final match = results[i];
         return InkWell(
           onTap: () => widget.onSelect(match),
-          child: DictionaryResultRow(
-            match: match,
-            isSaved: saved.contains(match.word),
-            isSelected: widget.selectedWord == match.word,
+          child: Semantics(
+            hint: 'Opens the word details',
+            child: DictionaryResultRow(
+              match: match,
+              isSaved: saved.contains(match.word),
+              isSelected: widget.selectedWord == match.word,
+            ),
           ),
         );
       },

@@ -16,7 +16,7 @@ class AboutScreen extends StatelessWidget {
           const Text('Subtitle Learn 1.0.0'),
           const SizedBox(height: 4),
           const Text(
-            'Learn Mandarin from text and speech you already read and hear. Tap a word for its pinyin and meaning, save it, and review it with spaced repetition.',
+            'Learn Mandarin from the video and audio you already watch. Live subtitles appear as tappable word cards, saved words go into a spaced repetition quiz.',
           ),
           const _Heading('Author'),
           const Text('Josh Brian Saputra'),
@@ -41,7 +41,16 @@ class AboutScreen extends StatelessWidget {
             'Writes the example sentences for level 3 quiz questions.',
             'https://ai.google.dev',
           ),
-          const _Credit('AI assistance', 'Some code was written with help from Claude (Anthropic).', null),
+          const _Credit(
+            'Flutter and platform frameworks',
+            'Flutter for the interface, speech_to_text and flutter_tts for speech, fl_chart for the stats screen. On iOS, Speech, ReplayKit and AVKit power Screen Share.',
+            null,
+          ),
+          const _Credit(
+            'AI assistance',
+            'Some code was written with help from Claude (Anthropic). I reviewed and can explain all of it.',
+            null,
+          ),
         ],
       ),
     );

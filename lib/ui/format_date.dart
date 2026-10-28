@@ -1,5 +1,8 @@
 const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+/// Three-letter English month name for a month number 1 to 12.
+String monthAbbreviation(int month) => _months[month - 1];
+
 String formatDay(DateTime d) => '${d.day} ${_months[d.month - 1]} ${d.year}';
 
 String formatDayTime(DateTime d) {

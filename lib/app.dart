@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons, CupertinoTabBar;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,9 +27,16 @@ class SubtitleLearnApp extends ConsumerWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: appearance.themeMode,
-      home: seen
-          ? const _Shell()
-          : OnboardingScreen(onFinish: () => ref.read(settingsProvider.notifier).setHasSeenOnboarding(true)),
+      // Onboarding covers the app instead of replacing it, so the tabs keep their state underneath.
+      home: Stack(
+        children: [
+          const _Shell(),
+          if (!seen)
+            Positioned.fill(
+              child: OnboardingScreen(onFinish: () => ref.read(settingsProvider.notifier).setHasSeenOnboarding(true)),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -42,8 +50,8 @@ class _Shell extends ConsumerStatefulWidget {
 
 class _ShellState extends ConsumerState<_Shell> with WidgetsBindingObserver {
   static const _screens = [
-    TranslateScreen(),
     ScreenShareScreen(),
+    TranslateScreen(),
     VocabularyScreen(),
     QuizScreen(),
     SettingsScreen(),
@@ -84,19 +92,16 @@ class _ShellState extends ConsumerState<_Shell> with WidgetsBindingObserver {
       body: IndexedStack(index: tab.index, children: _screens),
       bottomNavigationBar: inQuiz && tab == AppTab.quiz
           ? null
-          : NavigationBar(
-              selectedIndex: tab.index,
-              onDestinationSelected: _select,
-              destinations: const [
-                NavigationDestination(icon: Icon(Icons.swap_horiz), label: 'Translate'),
-                NavigationDestination(
-                  icon: Icon(Icons.picture_in_picture_alt_outlined),
-                  selectedIcon: Icon(Icons.picture_in_picture_alt),
-                  label: 'Screen Share',
-                ),
-                NavigationDestination(icon: Icon(Icons.bookmark_border), selectedIcon: Icon(Icons.bookmark), label: 'Vocabulary'),
-                NavigationDestination(icon: Icon(Icons.psychology_outlined), selectedIcon: Icon(Icons.psychology), label: 'Quiz'),
-                NavigationDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: 'Settings'),
+          : CupertinoTabBar(
+              currentIndex: tab.index,
+              onTap: _select,
+              activeColor: Theme.of(context).colorScheme.primary,
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.airplay), label: 'Screen Share'),
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.arrow_right_arrow_left), label: 'Translate'),
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.bookmark), activeIcon: Icon(CupertinoIcons.bookmark_fill), label: 'Vocabulary'),
+                BottomNavigationBarItem(icon: Icon(Icons.psychology_outlined), activeIcon: Icon(Icons.psychology), label: 'Quiz'),
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.gear), activeIcon: Icon(CupertinoIcons.gear_solid), label: 'Settings'),
               ],
             ),
     );

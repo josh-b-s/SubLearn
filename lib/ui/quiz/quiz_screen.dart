@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons, CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,6 +7,8 @@ import '../../services/vocabulary/saved_word_review.dart';
 import '../../state/clock_provider.dart';
 import '../../state/quiz_controller.dart';
 import '../../state/words_provider.dart';
+import '../components/icon_action.dart';
+import '../components/alerts.dart';
 import '../components/empty_state.dart';
 import '../components/slow_speech_button.dart';
 import '../stats/stats_screen.dart';
@@ -37,10 +40,10 @@ class QuizScreen extends ConsumerWidget {
           if (state.isInProgress)
             const SlowSpeechButton()
           else
-            IconButton(
-              tooltip: 'Stats',
-              icon: const Icon(Icons.bar_chart),
-              onPressed: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const StatsScreen())),
+            IconAction(
+              label: 'Stats',
+              icon: CupertinoIcons.chart_bar,
+              onPressed: () => Navigator.push(context, CupertinoPageRoute<void>(builder: (_) => const StatsScreen())),
             ),
         ],
       ),
@@ -48,19 +51,19 @@ class QuizScreen extends ConsumerWidget {
         QuizStage.idle => QuizHome(dueCount: dueCount, activeCount: active.length, onStart: quiz.start),
         QuizStage.loading => const Center(
             child: Column(mainAxisSize: MainAxisSize.min, spacing: 12, children: [
-              CircularProgressIndicator(),
+              CircularProgressIndicator.adaptive(),
               Text('Building quiz…'),
             ]),
           ),
         QuizStage.answering || QuizStage.feedback => _QuestionScreen(state: state),
         QuizStage.finished => EmptyState(
-            icon: Icons.check_circle,
+            icon: CupertinoIcons.checkmark_circle,
             title: 'Quiz complete',
             description: state.summary?.text,
             action: FilledButton(onPressed: quiz.reset, child: const Text('New Quiz')),
           ),
         QuizStage.error => EmptyState(
-            icon: Icons.warning_amber,
+            icon: CupertinoIcons.exclamationmark_triangle,
             title: "Can't start quiz",
             description: state.error,
             action: Row(mainAxisSize: MainAxisSize.min, spacing: 12, children: [
@@ -73,18 +76,15 @@ class QuizScreen extends ConsumerWidget {
   }
 
   Future<void> _confirmQuit(BuildContext context, QuizController quiz) async {
-    final quit = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Quit this quiz?'),
-        content: const Text("Answers you've already submitted are saved."),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Keep Going')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Quit Quiz')),
-        ],
-      ),
+    final quit = await showConfirmAlert(
+      context,
+      title: 'Quit this quiz?',
+      message: "Answers you've already submitted are saved.",
+      confirmLabel: 'Quit Quiz',
+      cancelLabel: 'Keep Going',
+      destructive: true,
     );
-    if (quit == true) quiz.reset();
+    if (quit) quiz.reset();
   }
 }
 

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/session/pip_line.dart';
+import '../models/saved_word.dart';
 import '../models/session/session_summary.dart';
 import '../services/dictionary/chinese_dictionary.dart';
 import '../services/screen_share/pip_subtitle_model.dart';
@@ -16,7 +17,7 @@ import 'session_transcript_provider.dart';
 import 'settings_provider.dart';
 import 'words_provider.dart';
 
-enum ScreenSharePhase { idle, starting, waitingForBroadcast, live, finished }
+enum ScreenSharePhase { idle, starting, waitingForBroadcast, live }
 
 class ScreenShareState {
   const ScreenShareState({
@@ -34,7 +35,7 @@ class ScreenShareState {
   final List<PipLine> lines;
   final SessionSummary? summary;
 
-  /// Why a session couldn't start or had to stop.
+  /// Why a session couldn't start or had to stop. Shown once, then cleared.
   final String? error;
 
   /// A problem that doesn't stop the session, such as the PiP window failing to open.
@@ -43,6 +44,9 @@ class ScreenShareState {
 
   bool get isRunning =>
       phase == ScreenSharePhase.starting || phase == ScreenSharePhase.waitingForBroadcast || phase == ScreenSharePhase.live;
+
+  /// Live or waiting for the broadcast. The source picker is locked and the button reads Stop.
+  bool get isActive => phase == ScreenSharePhase.waitingForBroadcast || phase == ScreenSharePhase.live;
 
   ScreenShareState copyWith({
     ScreenSharePhase? phase,
@@ -54,12 +58,13 @@ class ScreenShareState {
     bool? pipActive,
     bool clearError = false,
     bool clearNotice = false,
+    bool clearSummary = false,
   }) =>
       ScreenShareState(
         phase: phase ?? this.phase,
         source: source ?? this.source,
         lines: lines ?? this.lines,
-        summary: summary ?? this.summary,
+        summary: clearSummary ? null : (summary ?? this.summary),
         error: clearError ? null : (error ?? this.error),
         notice: clearNotice ? null : (notice ?? this.notice),
         pipActive: pipActive ?? this.pipActive,
@@ -69,6 +74,9 @@ class ScreenShareState {
 class ScreenShareController extends Notifier<ScreenShareState> {
   final _tracker = SessionWordTracker();
   final _pip = PipSubtitleModel();
+
+  /// The unfinished utterance, kept so stopping the session doesn't lose the last line.
+  String _pendingLine = '';
   StreamSubscription<ScreenShareEvent>? _events;
   ChineseDictionary? _dictionary;
 
@@ -87,6 +95,7 @@ class ScreenShareController extends Notifier<ScreenShareState> {
     final source = state.source;
     _tracker.reset();
     _pip.clear();
+    _pendingLine = '';
     state = ScreenShareState(phase: ScreenSharePhase.starting, source: source);
 
     final backend = ref.read(screenShareBackendProvider);
@@ -110,34 +119,44 @@ class ScreenShareController extends Notifier<ScreenShareState> {
     }
   }
 
-  /// Stops the session and shows its summary.
+  /// Stops the session. If any words were heard, [ScreenShareState.summary] is set for the view to show.
   Future<void> stop() async {
     if (!state.isRunning) return;
     final source = state.source;
-    final wasLive = state.phase == ScreenSharePhase.live;
     await _events?.cancel();
     _events = null;
-    state = state.copyWith(phase: ScreenSharePhase.finished);
+
+    _tracker.flush();
+    _appendLine(_pendingLine);
+    _pendingLine = '';
+    final saved = ref.read(wordsProvider);
+    final summary = SessionSummaryBuilder.build(_tracker.entries, saved);
+    _tracker.reset();
+    _pip.clear();
+    state = ScreenShareState(source: source, summary: summary, error: state.error);
+
     try {
-      await ref.read(screenShareBackendProvider).stop(source: source);
+      await ref.read(screenShareBackendProvider).stop(source: source, keepClipsFor: _clipsToKeep(summary, saved));
     } on ScreenShareException catch (e) {
       state = state.copyWith(notice: e.message);
     }
-
-    if (!wasLive) return dismissSummary();
-    _tracker.flush();
-    state = state.copyWith(
-      summary: SessionSummaryBuilder.build(_tracker.entries, ref.read(wordsProvider)),
-      pipActive: false,
-    );
   }
 
-  /// Back to the start screen.
-  void dismissSummary() {
-    _tracker.reset();
-    _pip.clear();
-    state = ScreenShareState(source: state.source);
+  /// Clips are kept for saved level 1 words plus the unsaved top words, which the review saves at
+  /// level 1. Null when nothing was heard, so the stored clips stay as they are.
+  Set<String>? _clipsToKeep(SessionSummary? summary, List<SavedWord> saved) {
+    if (summary == null) return null;
+    return {
+      for (final w in saved)
+        if (w.level == 1) w.word,
+      ...summary.unsavedTopWords,
+    };
   }
+
+  /// Closes the summary.
+  void dismissSummary() => state = state.copyWith(clearSummary: true);
+
+  void clearError() => state = state.copyWith(clearError: true);
 
   /// Saves the most heard words that aren't saved yet. Returns the words to quiz on.
   Set<String> prepareReview() {
@@ -155,6 +174,7 @@ class ScreenShareController extends Notifier<ScreenShareState> {
   Future<void> presentPip() => _run(ref.read(screenShareBackendProvider).presentPip);
 
   Future<void> _goLive() async {
+    _pendingLine = '';
     ref.read(sessionTranscriptProvider.notifier).begin(ref.read(clockProvider)());
     state = state.copyWith(phase: ScreenSharePhase.live);
     await presentPip();
@@ -169,7 +189,7 @@ class ScreenShareController extends Notifier<ScreenShareState> {
       case SpeechText(:final text, :final isFinal):
         _onSpeech(text, isFinal);
       case SpeechFailed(:final message):
-        unawaited(_stopWithError(message));
+        unawaited(_stopWithError('Speech recognition stopped: $message'));
       case PipStateChanged(:final active):
         state = state.copyWith(pipActive: active);
     }
@@ -187,7 +207,12 @@ class ScreenShareController extends Notifier<ScreenShareState> {
       levels: ref.read(levelsByWordProvider),
       hideLearned: ref.read(settingsProvider).hideLearnedInSubtitles,
     );
-    if (isFinal && tokens.isNotEmpty) ref.read(sessionTranscriptProvider.notifier).addLine(text);
+    if (isFinal) {
+      _pendingLine = '';
+      _appendLine(text);
+    } else {
+      _pendingLine = text;
+    }
 
     state = state.copyWith(lines: _pip.lines);
     unawaited(_run(() => ref.read(screenShareBackendProvider).updatePip(_pip.lines)));
@@ -195,9 +220,13 @@ class ScreenShareController extends Notifier<ScreenShareState> {
 
   /// Ends the session after a failure. The summary still shows if anything was heard.
   Future<void> _stopWithError(String message) async {
-    final hadSession = state.phase == ScreenSharePhase.live;
     await stop();
-    state = hadSession ? state.copyWith(error: message) : ScreenShareState(source: state.source, error: message);
+    state = state.copyWith(error: message);
+  }
+
+  void _appendLine(String text) {
+    final line = text.trim();
+    if (line.isNotEmpty) ref.read(sessionTranscriptProvider.notifier).addLine(line);
   }
 
   /// Runs a backend call whose failure should show a notice instead of stopping the session.

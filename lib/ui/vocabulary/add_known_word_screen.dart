@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,6 +6,7 @@ import '../../models/dictionary_match.dart';
 import '../../services/learning/mastery.dart';
 import '../../services/vocabulary/saved_word_mastery.dart';
 import '../../state/words_provider.dart';
+import '../components/icon_action.dart';
 import '../components/mastery_picker.dart';
 import '../dictionary/dictionary_results_list.dart';
 import '../dictionary/search_field.dart';
@@ -78,28 +80,27 @@ class _AddKnownWordScreenState extends ConsumerState<AddKnownWordScreen> {
                   const SizedBox(width: 8),
                   Text(match.entry.pinyin, style: TextStyle(color: context.accent)),
                   const Spacer(),
-                  IconButton(
-                    tooltip: 'Clear selection',
-                    icon: const Icon(Icons.cancel),
+                  IconAction(
+                    label: 'Clear selection',
+                    icon: CupertinoIcons.xmark_circle_fill,
                     onPressed: () => setState(() => _selected = null),
                   ),
                 ],
               ),
               MasteryPicker(progress: _progress, onChanged: (v) => setState(() => _progress = v)),
               const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => _add(match),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Text(exists ? 'Update level' : 'Add to Vocabulary'),
+              Semantics(
+                hint: 'Saves ${match.word} at ${Mastery.summaryForScore(_progress).toLowerCase()}',
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => _add(match),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(exists ? 'Update level' : 'Add to Vocabulary'),
+                    ),
                   ),
                 ),
-              ),
-              Semantics(
-                label: 'Saves ${match.word} at ${Mastery.summaryForScore(_progress).toLowerCase()}',
-                child: const SizedBox.shrink(),
               ),
             ],
           ),

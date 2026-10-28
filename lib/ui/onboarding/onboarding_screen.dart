@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
 import 'onboarding_page.dart';
 import 'onboarding_page_view.dart';
 
@@ -14,7 +15,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  static const _pages = OnboardingPage.all;
+  final _pages = OnboardingPage.all;
   final _controller = PageController();
   int _index = 0;
 
@@ -28,12 +29,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _advance() {
     if (_isLast) return widget.onFinish();
-    _controller.nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    if (reduceMotion) {
+      _controller.jumpToPage(_index + 1);
+    } else {
+      _controller.nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: context.groupedBackground,
       body: SafeArea(
         child: Column(
           children: [
