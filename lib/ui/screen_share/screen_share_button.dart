@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../services/screen_share/screen_share_backend.dart';
 import '../../state/screen_share_controller.dart';
+import '../components/app_button.dart';
 
 /// The one big button: starts, cancels the wait for the broadcast, or stops.
 class ScreenShareButton extends StatelessWidget {
@@ -32,21 +33,11 @@ class ScreenShareButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = state.isActive;
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton.icon(
-        onPressed: _canStart ? (active ? onStop : onStart) : null,
-        style: FilledButton.styleFrom(
-          backgroundColor: active ? Colors.red.shade700 : null,
-          foregroundColor: active ? Colors.white : null,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        ),
-        icon: Icon(active ? Icons.stop : Icons.picture_in_picture_alt),
-        label: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Text(_title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-        ),
-      ),
+    return AppButton(
+      label: _title,
+      style: active ? AppButtonStyle.destructive : AppButtonStyle.filled,
+      icon: Icon(active ? CupertinoIcons.stop_fill : CupertinoIcons.rectangle_on_rectangle),
+      onPressed: _canStart ? (active ? onStop : onStart) : null,
     );
   }
 }

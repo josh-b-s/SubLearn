@@ -1,13 +1,16 @@
 import 'package:app_settings/app_settings.dart';
-import 'package:flutter/cupertino.dart' show CupertinoDatePicker, CupertinoDatePickerMode, CupertinoButton, showCupertinoModalPopup;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../state/core_providers.dart';
 import '../../state/reminder_sync.dart';
 import '../../state/settings_provider.dart';
 import '../components/alerts.dart';
-import '../theme/app_colors.dart';
+import '../components/app_sheet.dart';
+import '../components/grouped_row.dart';
+import '../components/hairline.dart';
+import '../components/nav_text_button.dart';
+import '../format_date.dart';
 
 /// Settings section for the daily review reminder. Hidden where notifications aren't supported.
 class ReminderSettingsSection extends ConsumerWidget {
@@ -39,28 +42,29 @@ class ReminderSettingsSection extends ConsumerWidget {
 
     Future<void> pickTime() async {
       var chosen = minutes;
-      await showCupertinoModalPopup<void>(
-        context: context,
-        builder: (context) => Container(
-          height: 280,
-          color: context.cardBackground,
-          child: SafeArea(
-            top: false,
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: CupertinoButton(onPressed: () => Navigator.pop(context), child: const Text('Done')),
+      await showAppSheet<void>(
+        context,
+        builder: (context) => SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: NavTextButton(label: 'Done', bold: true, onPressed: () => Navigator.pop(context)),
                 ),
-                Expanded(
-                  child: CupertinoDatePicker(
-                    mode: CupertinoDatePickerMode.time,
-                    initialDateTime: DateTime(2000, 1, 1, minutes ~/ 60, minutes % 60),
-                    onDateTimeChanged: (d) => chosen = d.hour * 60 + d.minute,
-                  ),
+              ),
+              SizedBox(
+                height: 216,
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: DateTime(2000, 1, 1, minutes ~/ 60, minutes % 60),
+                  onDateTimeChanged: (d) => chosen = d.hour * 60 + d.minute,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
@@ -72,18 +76,13 @@ class ReminderSettingsSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SwitchListTile.adaptive(
-          title: const Text('Daily review reminder'),
-          value: settings.reminderEnabled,
-          onChanged: toggled,
+        GroupedRow(
+          title: 'Daily review reminder',
+          trailing: CupertinoSwitch(value: settings.reminderEnabled, onChanged: toggled),
         ),
         if (settings.reminderEnabled) ...[
-          const Divider(height: 1, thickness: 0.5, indent: 16),
-          ListTile(
-            title: const Text('Time'),
-            trailing: Text(TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60).format(context)),
-            onTap: pickTime,
-          ),
+          const Hairline(indent: 20),
+          GroupedRow(title: 'Time', info: formatMinutes(minutes), onTap: pickTime),
         ],
       ],
     );

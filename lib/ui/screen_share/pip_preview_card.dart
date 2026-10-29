@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../models/word_token.dart';
 
@@ -17,13 +17,13 @@ class PipPreviewCard extends StatelessWidget {
     return Container(
       constraints: const BoxConstraints(maxWidth: 92),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: CupertinoColors.white, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         spacing: 1,
         children: [
-          Text(token.text, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black)),
+          Text(token.text, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: CupertinoColors.black)),
           if (token.pinyin.isNotEmpty && !token.hidePinyin)
             Text(token.pinyin, style: const TextStyle(fontSize: 12, color: _blue)),
           if (token.meanings.isNotEmpty && !token.hideMeaning)

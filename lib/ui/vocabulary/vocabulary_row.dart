@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../models/mastery_status.dart';
 import '../../models/saved_word.dart';
 import '../../services/vocabulary/saved_word_mastery.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 import 'mastery_status_color.dart';
 
 /// One saved word: mastery badge, word, pinyin, meanings.
@@ -18,7 +18,6 @@ class VocabularyRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     final status = MasteryStatus.ofLevel(word.level);
     final picked = isPicked;
     return Semantics(
@@ -30,7 +29,7 @@ class VocabularyRow extends StatelessWidget {
         child: Row(
           children: [
             if (picked != null) ...[
-              Icon(picked ? Icons.check_circle : Icons.circle_outlined, color: picked ? context.accent : context.mutedText),
+              Icon(picked ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.circle, color: picked ? context.accent : context.mutedText),
               const SizedBox(width: 12),
             ],
             _Badge(status: status, label: word.masteryLabel),
@@ -40,17 +39,17 @@ class VocabularyRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text.rich(TextSpan(children: [
-                    TextSpan(text: word.word, style: text.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-                    TextSpan(text: '  ${word.pinyin}', style: text.bodyMedium?.copyWith(color: context.mutedText)),
+                    TextSpan(text: word.word, style: context.body.copyWith(fontWeight: FontWeight.w600)),
+                    TextSpan(text: '  ${word.pinyin}', style: context.subhead.copyWith(color: context.mutedText)),
                   ])),
                   Text(
                     word.meanings.isEmpty ? 'No definition' : word.meanings.join(' · '),
-                    style: text.bodyMedium?.copyWith(color: context.mutedText),
+                    style: context.subhead.copyWith(color: context.mutedText),
                   ),
                 ],
               ),
             ),
-            if (picked == null) Icon(CupertinoIcons.chevron_forward, color: context.mutedText),
+            if (picked == null) Icon(CupertinoIcons.chevron_forward, size: 16, color: context.resolve(CupertinoColors.tertiaryLabel)),
           ],
         ),
       ),
@@ -71,9 +70,9 @@ class _Badge extends StatelessWidget {
       width: 34,
       height: 34,
       alignment: Alignment.center,
-      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: status.color, width: 2)),
+      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: context.resolve(status.color), width: 2)),
       child: status == MasteryStatus.mastered
-          ? Icon(Icons.check, size: 16, color: context.successText)
+          ? Icon(CupertinoIcons.checkmark, size: 16, color: context.successText)
           : FittedBox(
               child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ),

@@ -1,8 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../models/quiz_record.dart';
+import '../components/grouped_row.dart';
+import '../components/grouped_section.dart';
+import '../components/pushed_page.dart';
 import '../format_date.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 
 /// Every question from one quiz with its right answer and a mark for the first try.
 class QuizHistoryDetailScreen extends StatelessWidget {
@@ -12,31 +16,41 @@ class QuizHistoryDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(formatDay(record.date))),
-      body: ListView(
+    return PushedPage(
+      title: formatDay(record.date),
+      backLabel: 'Quiz',
+      child: ListView(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
             child: Semantics(
               header: true,
               child: Text(
                 '${record.correctCount} of ${record.items.length} right on the first try',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(color: context.mutedText),
+                style: context.footnote.copyWith(color: context.mutedText),
               ),
             ),
           ),
-          for (final item in record.items)
-            MergeSemantics(
-              child: ListTile(
-                leading: Semantics(
-                  label: item.correct ? 'Correct' : 'Incorrect',
-                  child: Icon(item.correct ? Icons.check_circle : Icons.cancel, color: item.correct ? Colors.green : Colors.red),
+          GroupedSection(
+            dividerIndent: 68,
+            children: [
+              for (final item in record.items)
+                MergeSemantics(
+                  child: GroupedRow(
+                    leading: Semantics(
+                      label: item.correct ? 'Correct' : 'Incorrect',
+                      child: Icon(
+                        item.correct ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.xmark_circle_fill,
+                        color: item.correct ? context.successText : context.destructive,
+                      ),
+                    ),
+                    title: item.prompt,
+                    subtitle: 'Answer: ${item.answer}',
+                  ),
                 ),
-                title: Text(item.prompt, style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text('Answer: ${item.answer}'),
-              ),
-            ),
+            ],
+          ),
+          const SizedBox(height: 24),
         ],
       ),
     );

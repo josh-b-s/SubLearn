@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/quiz/quiz_column.dart';
 import '../../state/core_providers.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 import 'option_button.dart';
 
 /// Two columns of answer options side by side, stacked once text is too large for two narrow columns.
@@ -50,7 +51,7 @@ class QuizColumnsView extends ConsumerWidget {
       children: [
         Semantics(
           header: true,
-          child: Text(column.title, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: context.mutedText, fontWeight: FontWeight.w600)),
+          child: Text(column.title, style: context.caption1.copyWith(color: context.mutedText, fontWeight: FontWeight.w600)),
         ),
         for (final choice in column.choices)
           OptionButton(

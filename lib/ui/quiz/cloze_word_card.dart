@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../models/word_token.dart';
+import '../components/pressable.dart';
 import '../theme/app_colors.dart';
 
 /// One word of the cloze sentence. Pinyin and meaning follow the word's mastery level, and a tap shows the hidden ones.
@@ -22,24 +23,27 @@ class ClozeWordCard extends StatelessWidget {
     return Semantics(
       button: true,
       hint: hasHiddenHints && !showsHidden ? 'Shows its pinyin and meaning' : '',
-      child: Material(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(cornerRadius),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(cornerRadius),
+      child: Pressable(
+        child: GestureDetector(
           onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 150),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(token.text, style: const TextStyle(fontSize: wordSize, fontWeight: FontWeight.w600)),
-                  if (pinyin != null) Text(pinyin, style: TextStyle(fontSize: 13, color: context.accent)),
-                  if (meaning != null)
-                    Text(meaning, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: context.mutedText)),
-                ],
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: context.resolve(CupertinoColors.tertiarySystemFill),
+              borderRadius: BorderRadius.circular(cornerRadius),
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 150),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(token.text, style: const TextStyle(fontSize: wordSize, fontWeight: FontWeight.w600)),
+                    if (pinyin != null) Text(pinyin, style: TextStyle(fontSize: 13, color: context.accent)),
+                    if (meaning != null)
+                      Text(meaning, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: context.mutedText)),
+                  ],
+                ),
               ),
             ),
           ),

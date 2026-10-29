@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 /// Rounded rectangle outline, optionally dashed.
 class DashedBorderPainter extends CustomPainter {

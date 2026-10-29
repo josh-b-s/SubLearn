@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../theme/app_colors.dart';
 
@@ -11,7 +11,7 @@ class StreakBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = days > 0;
-    final color = active ? Colors.black : context.mutedText;
+    final color = active ? CupertinoColors.black : context.mutedText;
     final label = '$days day${days == 1 ? '' : 's'}';
     return Semantics(
       label: 'Streak',
@@ -20,14 +20,14 @@ class StreakBadge extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: active ? Colors.orange : context.chipBackground,
+          color: active ? context.resolve(CupertinoColors.systemOrange) : context.chipBackground,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           spacing: 6,
           children: [
-            Icon(Icons.local_fire_department, size: 18, color: color),
+            Icon(CupertinoIcons.flame_fill, size: 18, color: color),
             Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: color)),
           ],
         ),

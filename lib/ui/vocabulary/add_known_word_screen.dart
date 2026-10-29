@@ -1,16 +1,19 @@
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/dictionary_match.dart';
 import '../../services/learning/mastery.dart';
 import '../../services/vocabulary/saved_word_mastery.dart';
 import '../../state/words_provider.dart';
+import '../components/app_button.dart';
 import '../components/icon_action.dart';
 import '../components/mastery_picker.dart';
+import '../components/pushed_page.dart';
 import '../dictionary/dictionary_results_list.dart';
 import '../dictionary/search_field.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_shape.dart';
+import '../theme/app_text.dart';
 import 'custom_word_form.dart';
 
 /// Pick any dictionary word and add it to Vocabulary at the level you already know it.
@@ -42,9 +45,11 @@ class _AddKnownWordScreenState extends ConsumerState<AddKnownWordScreen> {
   @override
   Widget build(BuildContext context) {
     final selected = _selected;
-    return Scaffold(
-      appBar: AppBar(title: const Text('Add known word')),
-      body: Column(
+    return PushedPage(
+      title: 'Add Known Word',
+      backLabel: 'Vocabulary',
+      safeBottom: false,
+      child: Column(
         children: [
           SearchField(onChanged: (v) => setState(() => _query = v)),
           Expanded(
@@ -55,54 +60,51 @@ class _AddKnownWordScreenState extends ConsumerState<AddKnownWordScreen> {
               onAddCustom: () => showCustomWordForm(context, initialWord: _query),
             ),
           ),
+          if (selected != null) _gradePanel(selected),
         ],
       ),
-      bottomNavigationBar: selected == null ? null : _gradePanel(selected),
     );
   }
 
   Widget _gradePanel(DictionaryMatch match) {
     final exists = ref.watch(savedWordSetProvider).contains(match.word);
-    return Material(
-      color: Theme.of(context).colorScheme.surfaceContainer,
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(match.word, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(width: 8),
-                  Text(match.entry.pinyin, style: TextStyle(color: context.accent)),
-                  const Spacer(),
-                  IconAction(
-                    label: 'Clear selection',
-                    icon: CupertinoIcons.xmark_circle_fill,
-                    onPressed: () => setState(() => _selected = null),
-                  ),
-                ],
-              ),
-              MasteryPicker(progress: _progress, onChanged: (v) => setState(() => _progress = v)),
-              const SizedBox(height: 8),
-              Semantics(
-                hint: 'Saves ${match.word} at ${Mastery.summaryForScore(_progress).toLowerCase()}',
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () => _add(match),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text(exists ? 'Update level' : 'Add to Vocabulary'),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: cardRadius),
+      child: ColoredBox(
+        color: context.cardBackground,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(match.word, style: context.title2.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 8),
+                    Text(match.entry.pinyin, style: TextStyle(color: context.accent)),
+                    const Spacer(),
+                    IconAction(
+                      label: 'Clear selection',
+                      icon: CupertinoIcons.xmark_circle_fill,
+                      onPressed: () => setState(() => _selected = null),
                     ),
+                  ],
+                ),
+                MasteryPicker(progress: _progress, onChanged: (v) => setState(() => _progress = v)),
+                const SizedBox(height: 8),
+                Semantics(
+                  hint: 'Saves ${match.word} at ${Mastery.summaryForScore(_progress).toLowerCase()}',
+                  child: AppButton(
+                    label: exists ? 'Update Level' : 'Add to Vocabulary',
+                    onPressed: () => _add(match),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

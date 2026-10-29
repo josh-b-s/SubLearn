@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
+import 'dart:ui' show Brightness;
 
 enum AppearanceMode {
-  system('System', ThemeMode.system),
-  light('Light', ThemeMode.light),
-  dark('Dark', ThemeMode.dark);
+  system('System', null),
+  light('Light', Brightness.light),
+  dark('Dark', Brightness.dark);
 
-  const AppearanceMode(this.title, this.themeMode);
+  const AppearanceMode(this.title, this.brightness);
   final String title;
-  final ThemeMode themeMode;
+
+  /// Null follows the system setting.
+  final Brightness? brightness;
 }

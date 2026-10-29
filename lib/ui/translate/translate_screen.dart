@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart' show CupertinoButton, CupertinoIcons, CupertinoTextField;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,11 +7,14 @@ import '../../state/settings_provider.dart';
 import '../../state/translate_controller.dart';
 import '../../state/words_provider.dart';
 import '../components/alerts.dart';
+import '../components/large_title_page.dart';
 import '../components/pill_chip.dart';
 import '../components/section_label.dart';
 import '../components/word_card.dart';
 import '../components/word_detail_sheet.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_shape.dart';
+import '../theme/app_text.dart';
 import 'listening_bar.dart';
 
 class TranslateScreen extends ConsumerStatefulWidget {
@@ -76,9 +78,10 @@ class _TranslateScreenState extends ConsumerState<TranslateScreen> with WidgetsB
       showMessageAlert(context, title: 'Speech input', message: error).then((_) => controller.clearError());
     });
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Translate')),
-      bottomNavigationBar: state.isListening
+    return LargeTitlePage(
+      title: 'Translate',
+      controller: _scroll,
+      bottom: state.isListening
           ? ListeningBar(
               hasTranscript: tokens.isNotEmpty,
               hideLearned: hideLearned,
@@ -86,19 +89,21 @@ class _TranslateScreenState extends ConsumerState<TranslateScreen> with WidgetsB
               onStop: controller.stopListening,
             )
           : null,
-      body: SingleChildScrollView(
-        controller: _scroll,
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (!state.isListening) _InputCard(controller: _input, onChanged: controller.setInput, onMic: controller.startListening),
-            const SizedBox(height: 20),
-            _Breakdown(isListening: state.isListening, hasInput: state.inputText.trim().isNotEmpty),
-          ],
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!state.isListening) _InputCard(controller: _input, onChanged: controller.setInput, onMic: controller.startListening),
+                const SizedBox(height: 20),
+                _Breakdown(isListening: state.isListening, hasInput: state.inputText.trim().isNotEmpty),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -113,8 +118,8 @@ class _InputCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 6, 6, 6),
-      decoration: BoxDecoration(color: context.cardBackground, borderRadius: BorderRadius.circular(24)),
+      padding: const EdgeInsets.fromLTRB(20, 6, 6, 6),
+      decoration: BoxDecoration(color: context.cardBackground, borderRadius: const BorderRadius.all(cardRadius)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -124,7 +129,7 @@ class _InputCard extends StatelessWidget {
               onChanged: onChanged,
               minLines: 1,
               maxLines: 6,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+              style: context.title2,
               placeholder: 'Paste or type Chinese text…',
               decoration: null,
               padding: const EdgeInsets.symmetric(vertical: 10),
@@ -138,7 +143,7 @@ class _InputCard extends StatelessWidget {
             onTap: onMic,
             child: CupertinoButton.filled(
               padding: const EdgeInsets.all(10),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(30),
               onPressed: () {
                 FocusScope.of(context).unfocus();
                 onMic();
@@ -172,11 +177,7 @@ class _Breakdown extends ConsumerWidget {
       );
     }
     if (!dictionary.hasValue) {
-      return const Row(children: [
-        SizedBox(width: 20, height: 20, child: CircularProgressIndicator.adaptive(strokeWidth: 2)),
-        SizedBox(width: 8),
-        Text('Loading dictionary…'),
-      ]);
+      return const Row(spacing: 8, children: [CupertinoActivityIndicator(), Text('Loading dictionary…')]);
     }
     if (hasInput && tokens.isEmpty) {
       return Text('No Chinese characters found.', style: TextStyle(color: context.mutedText));

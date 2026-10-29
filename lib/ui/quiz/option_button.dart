@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
 import '../components/pressable.dart';
@@ -50,12 +50,14 @@ class OptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final green = context.resolve(CupertinoColors.systemGreen);
+    final red = context.resolve(CupertinoColors.systemRed);
+    final label = context.resolve(CupertinoColors.label);
     final (border, fill, icon, textColor) = switch (state) {
-      OptionState.idle => (scheme.outlineVariant, context.cardBackground, null, scheme.onSurface),
-      OptionState.selected => (scheme.primary, scheme.primary.withValues(alpha: 0.15), Icons.check_circle, scheme.onSurface),
-      OptionState.correct => (Colors.green, Colors.green.withValues(alpha: 0.12), Icons.check_circle, context.successText),
-      OptionState.wrong => (Colors.red, Colors.red.withValues(alpha: 0.12), Icons.cancel, context.errorText),
+      OptionState.idle => (context.hairline, context.cardBackground, null, label),
+      OptionState.selected => (context.accent, context.accent.withValues(alpha: 0.15), CupertinoIcons.checkmark_circle_fill, label),
+      OptionState.correct => (green, green.withValues(alpha: 0.12), CupertinoIcons.checkmark_circle_fill, context.successText),
+      OptionState.wrong => (red, red.withValues(alpha: 0.12), CupertinoIcons.xmark_circle_fill, context.errorText),
     };
     final stateLabel = switch (state) {
       OptionState.idle => '',
@@ -78,38 +80,34 @@ class OptionButton extends StatelessWidget {
       excludeSemantics: true,
       onTap: isLocked ? null : _choose,
       child: Pressable(
-        child: Material(
-          color: fill,
-          elevation: state == OptionState.idle ? 1 : 0,
-          shadowColor: const Color(0x0F000000),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-            side: BorderSide(color: border, width: state == OptionState.idle ? 1 : 2),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: isLocked ? null : _choose,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              child: Row(
-                children: [
-                  if (letter != null) ...[
-                    Text(letter!, style: TextStyle(fontWeight: FontWeight.bold, color: letterColor)),
-                    const SizedBox(width: 12),
-                  ],
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(text, style: TextStyle(fontSize: fontSize, color: textColor)),
-                        if (subtitle != null && subtitle!.isNotEmpty)
-                          Text(subtitle!, style: TextStyle(color: resolved ? textColor : context.mutedText)),
-                      ],
-                    ),
-                  ),
-                  if (icon != null) Icon(icon, color: border),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: isLocked ? null : _choose,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: fill,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: border, width: state == OptionState.idle ? 1 : 2),
+            ),
+            child: Row(
+              children: [
+                if (letter != null) ...[
+                  Text(letter!, style: TextStyle(fontWeight: FontWeight.bold, color: letterColor)),
+                  const SizedBox(width: 12),
                 ],
-              ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(text, style: TextStyle(fontSize: fontSize, color: textColor)),
+                      if (subtitle != null && subtitle!.isNotEmpty)
+                        Text(subtitle!, style: TextStyle(color: resolved ? textColor : context.mutedText)),
+                    ],
+                  ),
+                ),
+                if (icon != null) Icon(icon, color: border),
+              ],
             ),
           ),
         ),

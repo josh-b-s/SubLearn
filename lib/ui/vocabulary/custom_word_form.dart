@@ -1,18 +1,20 @@
-import 'package:flutter/cupertino.dart' show CupertinoButton, CupertinoIcons, CupertinoTextField;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../services/dictionary/han.dart';
 import '../../state/custom_dictionary_provider.dart';
 import '../../state/dictionary_provider.dart';
 import '../../services/vocabulary/custom_meanings.dart';
+import '../components/app_sheet.dart';
+import '../components/hairline.dart';
+import '../components/nav_text_button.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_shape.dart';
+import '../theme/app_text.dart';
 
 Future<void> showCustomWordForm(BuildContext context, {String initialWord = ''}) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
+  return showAppSheet<void>(
+    context,
     builder: (_) => CustomWordForm(initialWord: initialWord.runes.where(isHanRune).map(String.fromCharCode).join()),
   );
 }
@@ -62,84 +64,91 @@ class _CustomWordFormState extends ConsumerState<CustomWordForm> {
   Widget build(BuildContext context) {
     final message = _validationMessage;
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.viewInsetsOf(context).bottom + 16),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Custom word', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(color: context.cardBackground, borderRadius: BorderRadius.circular(10)),
-              child: Column(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
+                  NavTextButton(label: 'Cancel', onPressed: () => Navigator.pop(context)),
+                  Expanded(child: Text('Custom Word', textAlign: TextAlign.center, style: context.headline)),
                   Semantics(
-                    hint: 'Chinese characters only',
-                    child: CupertinoTextField(
-                      controller: _word,
-                      placeholder: 'Word',
-                      autocorrect: false,
-                      decoration: null,
-                      padding: const EdgeInsets.all(14),
-                      onChanged: (_) => setState(() {}),
-                    ),
-                  ),
-                  const Divider(height: 1, thickness: 0.5, indent: 14),
-                  Semantics(
-                    hint: 'Filled in for you if left blank',
-                    child: CupertinoTextField(
-                      controller: _pinyin,
-                      placeholder: 'Pinyin (optional)',
-                      autocorrect: false,
-                      decoration: null,
-                      padding: const EdgeInsets.all(14),
-                    ),
-                  ),
-                  const Divider(height: 1, thickness: 0.5, indent: 14),
-                  Semantics(
-                    hint: 'Separate several meanings with a slash',
-                    child: CupertinoTextField(
-                      controller: _meaning,
-                      placeholder: 'Meaning',
-                      decoration: null,
-                      padding: const EdgeInsets.all(14),
-                      onChanged: (_) => setState(() {}),
-                    ),
+                    hint: _isValid ? '' : 'Enter a Chinese word and a meaning first',
+                    child: NavTextButton(label: 'Add', bold: true, onPressed: _isValid ? _add : null),
                   ),
                 ],
               ),
-            ),
-            if (message != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Semantics(
-                  liveRegion: true,
-                  label: 'Error: $message',
-                  excludeSemantics: true,
-                  child: Row(spacing: 6, children: [
-                    Icon(CupertinoIcons.exclamationmark_triangle, size: 16, color: context.errorText),
-                    Expanded(child: Text(message, style: TextStyle(color: context.errorText, fontSize: 13))),
-                  ]),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: const BorderRadius.all(cardRadius),
+                child: ColoredBox(
+                  color: context.cardBackground,
+                  child: Column(
+                    children: [
+                      Semantics(
+                        hint: 'Chinese characters only',
+                        child: CupertinoTextField(
+                          controller: _word,
+                          placeholder: 'Word',
+                          autocorrect: false,
+                          decoration: null,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ),
+                      const Hairline(indent: 20),
+                      Semantics(
+                        hint: 'Filled in for you if left blank',
+                        child: CupertinoTextField(
+                          controller: _pinyin,
+                          placeholder: 'Pinyin (optional)',
+                          autocorrect: false,
+                          decoration: null,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        ),
+                      ),
+                      const Hairline(indent: 20),
+                      Semantics(
+                        hint: 'Separate several meanings with a slash',
+                        child: CupertinoTextField(
+                          controller: _meaning,
+                          placeholder: 'Meaning',
+                          decoration: null,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            const SizedBox(height: 8),
-            Text(
-              'Chinese characters only. Separate several meanings with a slash. Pinyin is filled in for you if you leave it blank. Adding an existing word replaces it.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.mutedText),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CupertinoButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-                Semantics(
-                  hint: _isValid ? '' : 'Enter a Chinese word and a meaning first',
-                  child: FilledButton(onPressed: _isValid ? _add : null, child: const Text('Add')),
+              if (message != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8, left: 16),
+                  child: Semantics(
+                    liveRegion: true,
+                    label: 'Error: $message',
+                    excludeSemantics: true,
+                    child: Row(spacing: 6, children: [
+                      Icon(CupertinoIcons.exclamationmark_triangle, size: 16, color: context.errorText),
+                      Expanded(child: Text(message, style: context.footnote.copyWith(color: context.errorText))),
+                    ]),
+                  ),
                 ),
-              ],
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Text(
+                  'Chinese characters only. Separate several meanings with a slash. Pinyin is filled in for you if you leave it blank. Adding an existing word replaces it.',
+                  style: context.footnote.copyWith(color: context.mutedText),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

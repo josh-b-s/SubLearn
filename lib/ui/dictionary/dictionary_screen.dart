@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../components/icon_action.dart';
+import '../components/pushed_page.dart';
 import '../components/word_detail_sheet.dart';
 import '../vocabulary/custom_word_form.dart';
 import 'dictionary_results_list.dart';
@@ -20,18 +20,15 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dictionary'),
-        actions: [
-          IconAction(
-            label: 'Add custom word',
-            icon: CupertinoIcons.add,
-            onPressed: () => showCustomWordForm(context, initialWord: _query),
-          ),
-        ],
+    return PushedPage(
+      title: 'Dictionary',
+      backLabel: 'Vocabulary',
+      trailing: IconAction(
+        label: 'Add custom word',
+        icon: CupertinoIcons.add,
+        onPressed: () => showCustomWordForm(context, initialWord: _query),
       ),
-      body: Column(
+      child: Column(
         children: [
           SearchField(onChanged: (v) => setState(() => _query = v)),
           Expanded(

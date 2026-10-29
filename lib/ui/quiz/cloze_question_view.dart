@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../models/quiz/cloze_question.dart';
 import '../../models/word_token.dart';
 import '../../services/dictionary/han.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 import 'cloze_word_card.dart';
 import 'dashed_border_painter.dart';
 import 'option_button.dart';
@@ -50,9 +51,9 @@ class _ClozeQuestionViewState extends State<ClozeQuestionView> {
         QuizPromptCard(alignment: CrossAxisAlignment.start, children: [
           Text(
             'Fill in the blank, then pick its pinyin and meaning',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(color: context.mutedText),
+            style: context.subhead.copyWith(color: context.mutedText),
           ),
-          Text(q.translation, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          Text(q.translation, style: context.body.copyWith(fontWeight: FontWeight.w600)),
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Wrap(
@@ -109,7 +110,7 @@ class _ClozeQuestionViewState extends State<ClozeQuestionView> {
       excludeSemantics: true,
       child: CustomPaint(
         foregroundPainter: DashedBorderPainter(
-          color: revealed ? Colors.green : context.accent,
+          color: revealed ? context.resolve(CupertinoColors.systemGreen) : context.accent,
           radius: ClozeWordCard.cornerRadius,
           dash: isOpen ? 5 : null,
         ),

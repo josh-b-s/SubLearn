@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../services/learning/mastery.dart';
-import 'section_label.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
+import 'section_label.dart';
 
 /// Manual mastery control. The slider moves in half levels, so 2.5 means level 2 with one pass done.
 class MasteryPicker extends StatefulWidget {
@@ -38,19 +39,18 @@ class _MasteryPickerState extends State<MasteryPicker> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const SectionLabel('MASTERY'),
-            ExcludeSemantics(child: Text(summary, style: const TextStyle(fontWeight: FontWeight.w600))),
+            ExcludeSemantics(child: Text(summary, style: context.headline)),
           ],
         ),
         Semantics(
           label: 'Mastery',
           value: summary,
           hint: _caption,
-          child: Slider(
+          child: CupertinoSlider(
             value: _shown.clamp(1, Mastery.masteredLevel.toDouble()).toDouble(),
             min: 1,
             max: Mastery.masteredLevel.toDouble(),
             divisions: ((Mastery.masteredLevel - 1) / Mastery.scoreStep).round(),
-            label: summary,
             onChanged: (v) => setState(() => _draft = v),
             onChangeEnd: (v) {
               setState(() => _draft = null);
@@ -59,7 +59,7 @@ class _MasteryPickerState extends State<MasteryPicker> {
           ),
         ),
         ExcludeSemantics(
-          child: Text(_caption, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.mutedText)),
+          child: Text(_caption, style: context.footnote.copyWith(color: context.mutedText)),
         ),
       ],
     );

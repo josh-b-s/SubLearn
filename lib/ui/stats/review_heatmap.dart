@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../services/dates.dart';
 import '../../services/stats/stats_calculator.dart';
@@ -33,7 +33,7 @@ class ReviewHeatmap extends StatelessWidget {
     Color colorFor(int count) {
       if (count == 0) return context.chipBackground;
       final level = (count * _levels / maxCount).ceil().clamp(1, _levels);
-      return Colors.blue.withValues(alpha: level / _levels);
+      return context.accent.withValues(alpha: level / _levels);
     }
 
     DateTime columnDate(int column) => addDays(origin, column * 7);
@@ -106,7 +106,7 @@ class ReviewHeatmap extends StatelessWidget {
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: i == 0 ? context.chipBackground : Colors.blue.withValues(alpha: i / _levels),
+                    color: i == 0 ? context.chipBackground : context.accent.withValues(alpha: i / _levels),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -125,7 +125,7 @@ class ReviewHeatmap extends StatelessWidget {
       height: _cell,
       margin: const EdgeInsets.all(_gap / 2),
       decoration: BoxDecoration(
-        color: inRange ? colorFor(counts[day] ?? 0) : Colors.transparent,
+        color: inRange ? colorFor(counts[day] ?? 0) : const Color(0x00000000),
         borderRadius: BorderRadius.circular(2),
       ),
     );

@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/stats_period.dart';
 import '../../state/clock_provider.dart';
 import '../../state/stats_provider.dart';
+import '../components/pushed_page.dart';
 import '../components/segmented_picker.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 import 'review_heatmap.dart';
 import 'stat_card.dart';
 import 'stats_section_card.dart';
@@ -22,9 +24,10 @@ class StatsScreen extends ConsumerWidget {
     final period = ref.watch(statsPeriodProvider);
     final accuracy = stats.accuracy;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Stats')),
-      body: ListView(
+    return PushedPage(
+      title: 'Stats',
+      backLabel: 'Quiz',
+      child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Row(
@@ -32,7 +35,7 @@ class StatsScreen extends ConsumerWidget {
             children: [
               Semantics(
                 header: true,
-                child: Text('Progress', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                child: Text('Progress', style: context.title2.copyWith(fontWeight: FontWeight.bold)),
               ),
               StreakBadge(days: stats.streak),
             ],

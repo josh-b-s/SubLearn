@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
+import '../components/app_button.dart';
 import '../theme/app_colors.dart';
 import 'onboarding_page.dart';
 import 'onboarding_page_view.dart';
@@ -39,16 +40,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return CupertinoPageScaffold(
       backgroundColor: context.groupedBackground,
-      body: SafeArea(
+      child: SafeArea(
         child: Column(
           children: [
             SizedBox(
               height: 48,
               child: Align(
                 alignment: Alignment.centerRight,
-                child: _isLast ? null : TextButton(onPressed: widget.onFinish, child: const Text('Skip')),
+                child: _isLast ? null : CupertinoButton(onPressed: widget.onFinish, child: const Text('Skip')),
               ),
             ),
             Expanded(
@@ -68,20 +69,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     margin: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: i == _index ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
+                      color: i == _index ? context.accent : context.resolve(CupertinoColors.systemGrey4),
                     ),
                   ),
               ],
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _advance,
-                  child: Padding(padding: const EdgeInsets.all(8), child: Text(_isLast ? 'Get started' : 'Next')),
-                ),
-              ),
+              child: AppButton(label: _isLast ? 'Get Started' : 'Next', onPressed: _advance),
             ),
           ],
         ),

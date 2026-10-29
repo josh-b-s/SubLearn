@@ -1,8 +1,9 @@
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
+import '../components/app_button.dart';
 import '../components/pill_chip.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_shape.dart';
 
 /// Pinned bar shown while recording: status, the hide-learned toggle, and a one-tap stop.
 class ListeningBar extends StatelessWidget {
@@ -21,59 +22,59 @@ class ListeningBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surfaceContainer,
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  const _Pulse(child: Icon(Icons.graphic_eq, color: Colors.red)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Semantics(
-                      liveRegion: true,
-                      container: true,
-                      child: Text(
-                        hasTranscript ? 'Listening…' : 'Listening, start speaking…',
-                        style: TextStyle(color: context.mutedText),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: cardRadius),
+      child: ColoredBox(
+        color: context.cardBackground,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        _Pulse(child: Icon(CupertinoIcons.waveform, color: context.destructive)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Semantics(
+                            liveRegion: true,
+                            container: true,
+                            child: Text(
+                              hasTranscript ? 'Listening…' : 'Listening, start speaking…',
+                              style: TextStyle(color: context.mutedText),
+                            ),
+                          ),
+                        ),
+                        if (hasTranscript)
+                          PillChip(
+                            icon: CupertinoIcons.eye_slash,
+                            label: 'Hide learned',
+                            selected: hideLearned,
+                            onTap: () => onHideLearnedChanged(!hideLearned),
+                            hint: 'Hides the pinyin and meaning of words you already know',
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Semantics(
+                      hint: 'Stops listening and keeps the transcript',
+                      child: AppButton(
+                        label: 'Stop Recording',
+                        style: AppButtonStyle.destructive,
+                        icon: const _Pulse(child: Icon(CupertinoIcons.stop_fill)),
+                        onPressed: onStop,
                       ),
                     ),
-                  ),
-                  if (hasTranscript)
-                    PillChip(
-                      icon: CupertinoIcons.eye_slash,
-                      label: 'Hide learned',
-                      selected: hideLearned,
-                      onTap: () => onHideLearnedChanged(!hideLearned),
-                      hint: 'Hides the pinyin and meaning of words you already know',
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: Semantics(
-                  hint: 'Stops listening and keeps the transcript',
-                  child: FilledButton.icon(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    minimumSize: const Size.fromHeight(52),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                    textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                  onPressed: onStop,
-                  icon: const _Pulse(child: Icon(Icons.stop)),
-                  label: const Text('Stop recording'),
-                  ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

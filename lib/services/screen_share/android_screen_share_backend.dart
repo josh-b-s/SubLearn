@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 
@@ -7,7 +6,6 @@ import '../speech/sherpa/sherpa_model_store.dart';
 import '../speech/sherpa/sherpa_recognizer.dart';
 import 'channel_screen_share_backend.dart';
 import 'screen_share_backend.dart';
-import 'screen_share_backend_api.dart';
 
 /// The Kotlin code in android/app/src/main/kotlin/.../screenshare captures the audio. Recognition runs
 /// here in Dart with the Sherpa model, the same engine as the Translate microphone. Audio clips are not ported.

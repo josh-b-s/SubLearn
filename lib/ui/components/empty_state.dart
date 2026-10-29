@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 
 /// Centered icon, title and explanation, with an optional action.
 class EmptyState extends StatelessWidget {
@@ -13,7 +14,6 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -22,10 +22,10 @@ class EmptyState extends StatelessWidget {
           children: [
             Icon(icon, size: 48, color: context.mutedText),
             const SizedBox(height: 12),
-            Text(title, style: text.titleLarge?.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+            Text(title, style: context.title2.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
             if (description != null) ...[
               const SizedBox(height: 8),
-              Text(description!, style: text.bodyMedium?.copyWith(color: context.mutedText), textAlign: TextAlign.center),
+              Text(description!, style: context.subhead.copyWith(color: context.mutedText), textAlign: TextAlign.center),
             ],
             if (action != null) ...[const SizedBox(height: 16), action!],
           ],

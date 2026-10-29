@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 
 /// Stacked bar and legend splitting a session's words into known, learning and new.
 class SessionBreakdownBar extends StatelessWidget {
@@ -10,18 +11,18 @@ class SessionBreakdownBar extends StatelessWidget {
   final int learning;
   final int newWords;
 
-  static const knownColor = Colors.green;
-  static const learningColor = Colors.orange;
-  static const newColor = Colors.blue;
+  static const knownColor = CupertinoColors.systemGreen;
+  static const learningColor = CupertinoColors.systemOrange;
+  static const newColor = CupertinoColors.systemBlue;
 
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final largeText = MediaQuery.textScalerOf(context).scale(14) >= 14 * 1.5;
     final legend = [
-      _Legend(color: knownColor, label: 'Already known', count: alreadyKnown),
-      _Legend(color: learningColor, label: 'Learning', count: learning),
-      _Legend(color: newColor, label: 'New', count: newWords),
+      _Legend(color: context.resolve(knownColor), label: 'Already known', count: alreadyKnown),
+      _Legend(color: context.resolve(learningColor), label: 'Learning', count: learning),
+      _Legend(color: context.resolve(newColor), label: 'New', count: newWords),
     ];
 
     return Semantics(
@@ -50,7 +51,7 @@ class SessionBreakdownBar extends StatelessWidget {
                         width: constraints.maxWidth,
                         child: Row(children: [
                           for (final (count, color) in [(alreadyKnown, knownColor), (learning, learningColor), (newWords, newColor)])
-                            if (count > 0) Expanded(flex: count, child: ColoredBox(color: color)),
+                            if (count > 0) Expanded(flex: count, child: ColoredBox(color: context.resolve(color))),
                         ]),
                       ),
                     ),
@@ -78,12 +79,11 @@ class _Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     return Row(mainAxisSize: MainAxisSize.min, spacing: 6, children: [
       Container(width: 10, height: 10, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2))),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('$count', style: text.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-        Text(label, style: text.bodySmall?.copyWith(color: context.mutedText)),
+        Text('$count', style: context.subhead.copyWith(fontWeight: FontWeight.bold)),
+        Text(label, style: context.footnote.copyWith(color: context.mutedText)),
       ]),
     ]);
   }

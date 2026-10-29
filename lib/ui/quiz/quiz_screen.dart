@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart' show CupertinoIcons, CupertinoPageRoute;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../services/vocabulary/saved_word_mastery.dart';
@@ -7,12 +6,16 @@ import '../../services/vocabulary/saved_word_review.dart';
 import '../../state/clock_provider.dart';
 import '../../state/quiz_controller.dart';
 import '../../state/words_provider.dart';
-import '../components/icon_action.dart';
 import '../components/alerts.dart';
+import '../components/app_button.dart';
 import '../components/empty_state.dart';
+import '../components/icon_action.dart';
+import '../components/large_title_page.dart';
+import '../components/nav_text_button.dart';
 import '../components/slow_speech_button.dart';
 import '../stats/stats_screen.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 import 'quiz_feedback_banner.dart';
 import 'quiz_home.dart';
 import 'quiz_progress_header.dart';
@@ -30,48 +33,65 @@ class QuizScreen extends ConsumerWidget {
     final active = words.where((w) => !w.isMastered);
     final dueCount = active.where((w) => w.isDue(now)).length;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(state.isInProgress ? '' : 'Quiz'),
-        automaticallyImplyLeading: false,
-        leading: state.isInProgress ? TextButton(onPressed: () => _confirmQuit(context, quiz), child: const Text('Quit')) : null,
-        leadingWidth: state.isInProgress ? 80 : null,
-        actions: [
-          if (state.isInProgress)
-            const SlowSpeechButton()
-          else
-            IconAction(
-              label: 'Stats',
-              icon: CupertinoIcons.chart_bar,
-              onPressed: () => Navigator.push(context, CupertinoPageRoute<void>(builder: (_) => const StatsScreen())),
-            ),
-        ],
+    // A running quiz is its own task, so it gets a plain title bar with Quit instead of the tab's large title.
+    if (state.isInProgress) {
+      return CupertinoPageScaffold(
+        backgroundColor: context.groupedBackground,
+        navigationBar: CupertinoNavigationBar(
+          automaticallyImplyLeading: false,
+          transitionBetweenRoutes: false,
+          backgroundColor: context.groupedBackground,
+          leading: NavTextButton(label: 'Quit', onPressed: () => _confirmQuit(context, quiz)),
+          trailing: const SlowSpeechButton(),
+        ),
+        child: _QuestionScreen(state: state),
+      );
+    }
+
+    return LargeTitlePage(
+      title: 'Quiz',
+      trailing: IconAction(
+        label: 'Stats',
+        icon: CupertinoIcons.chart_bar_alt_fill,
+        onPressed: () => Navigator.push(context, CupertinoPageRoute<void>(builder: (_) => const StatsScreen())),
       ),
-      body: switch (state.stage) {
-        QuizStage.idle => QuizHome(dueCount: dueCount, activeCount: active.length, onStart: quiz.start),
-        QuizStage.loading => const Center(
-            child: Column(mainAxisSize: MainAxisSize.min, spacing: 12, children: [
-              CircularProgressIndicator.adaptive(),
-              Text('Building quiz…'),
-            ]),
-          ),
-        QuizStage.answering || QuizStage.feedback => _QuestionScreen(state: state),
-        QuizStage.finished => EmptyState(
-            icon: CupertinoIcons.checkmark_circle,
-            title: 'Quiz complete',
-            description: state.summary?.text,
-            action: FilledButton(onPressed: quiz.reset, child: const Text('New Quiz')),
-          ),
-        QuizStage.error => EmptyState(
-            icon: CupertinoIcons.exclamationmark_triangle,
-            title: "Can't start quiz",
-            description: state.error,
-            action: Row(mainAxisSize: MainAxisSize.min, spacing: 12, children: [
-              OutlinedButton(onPressed: quiz.reset, child: const Text('Back')),
-              FilledButton(onPressed: quiz.start, child: const Text('Try Again')),
-            ]),
-          ),
-      },
+      bottom: state.stage == QuizStage.idle ? QuizStartBar(onStart: quiz.start) : null,
+      slivers: [
+        switch (state.stage) {
+          QuizStage.idle => QuizHome(dueCount: dueCount, activeCount: active.length),
+          QuizStage.loading => const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Column(mainAxisSize: MainAxisSize.min, spacing: 12, children: [
+                  CupertinoActivityIndicator(radius: 14),
+                  Text('Building quiz…'),
+                ]),
+              ),
+            ),
+          QuizStage.answering || QuizStage.feedback => const SliverToBoxAdapter(),
+          QuizStage.finished => SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyState(
+                icon: CupertinoIcons.checkmark_circle,
+                title: 'Quiz Complete',
+                description: state.summary?.text,
+                action: AppButton(label: 'New Quiz', expand: false, onPressed: quiz.reset),
+              ),
+            ),
+          QuizStage.error => SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyState(
+                icon: CupertinoIcons.exclamationmark_triangle,
+                title: "Can't Start Quiz",
+                description: state.error,
+                action: Row(mainAxisSize: MainAxisSize.min, spacing: 12, children: [
+                  AppButton(label: 'Back', style: AppButtonStyle.tinted, expand: false, onPressed: quiz.reset),
+                  AppButton(label: 'Try Again', expand: false, onPressed: quiz.start),
+                ]),
+              ),
+            ),
+        },
+      ],
     );
   }
 
@@ -111,7 +131,7 @@ class _QuestionScreen extends ConsumerWidget {
               children: [
                 QuizProgressHeader(index: state.progressIndex, total: state.total, fraction: state.progressFraction),
                 if (state.note != null)
-                  Text(state.note!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.warningText)),
+                  Text(state.note!, style: context.footnote.copyWith(color: context.warningText)),
                 if (question != null)
                   QuizQuestionView(key: ValueKey(question.id), question: question, isRevealed: feedback != null),
               ],
@@ -127,12 +147,9 @@ class _QuestionScreen extends ConsumerWidget {
               spacing: 10,
               children: [
                 if (feedback != null) QuizFeedbackBanner(feedback: feedback),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: feedback != null ? quiz.next : (state.canSubmit ? quiz.submit : null),
-                    child: Padding(padding: const EdgeInsets.all(8), child: Text(title)),
-                  ),
+                AppButton(
+                  label: title,
+                  onPressed: feedback != null ? quiz.next : (state.canSubmit ? quiz.submit : null),
                 ),
               ],
             ),

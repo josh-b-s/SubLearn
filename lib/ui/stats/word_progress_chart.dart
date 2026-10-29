@@ -1,10 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../models/progress_series.dart';
 import '../../models/stats_snapshot.dart';
 import '../format_date.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 
 /// Words learned, saved and mastered over the last 12 weeks. The menu narrows it to one line.
 class WordProgressChart extends StatefulWidget {
@@ -18,8 +19,6 @@ class WordProgressChart extends StatefulWidget {
 }
 
 class _WordProgressChartState extends State<WordProgressChart> {
-  static const _all = -1;
-
   /// Null shows every series.
   ProgressSeries? _only;
 
@@ -37,7 +36,7 @@ class _WordProgressChartState extends State<WordProgressChart> {
       return SizedBox(
         height: 160,
         child: Center(
-          child: Text('Not enough data yet', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.mutedText)),
+          child: Text('Not enough data yet', style: context.footnote.copyWith(color: context.mutedText)),
         ),
       );
     }
@@ -55,7 +54,7 @@ class _WordProgressChartState extends State<WordProgressChart> {
         if (_shown.contains(ProgressSeries.learned) && widget.gainedThisWeek > 0)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(color: context.resolve(CupertinoColors.systemGreen).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
             child: Text(
               '+${widget.gainedThisWeek} learned this week',
               style: TextStyle(color: context.successText, fontWeight: FontWeight.w600, fontSize: 13),
@@ -73,35 +72,52 @@ class _WordProgressChartState extends State<WordProgressChart> {
   }
 
   Widget _totals(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     return Wrap(
       spacing: 16,
       runSpacing: 8,
       children: [
         for (final series in _shown)
           Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-            Text('${_latest(series)}', style: text.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: series.color)),
-            Text(series.label, style: text.bodySmall?.copyWith(color: context.mutedText)),
+            Text('${_latest(series)}', style: context.title2.copyWith(fontWeight: FontWeight.bold, color: context.resolve(series.color))),
+            Text(series.label, style: context.footnote.copyWith(color: context.mutedText)),
           ]),
       ],
     );
   }
 
   Widget _menu(BuildContext context) {
-    return PopupMenuButton<int>(
-      tooltip: 'Show',
-      onSelected: (index) => setState(() => _only = index == _all ? null : ProgressSeries.values[index]),
-      itemBuilder: (_) => [
-        const PopupMenuItem(value: _all, child: Text('All')),
-        for (final (i, series) in ProgressSeries.values.indexed) PopupMenuItem(value: i, child: Text(series.label)),
-      ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: Row(mainAxisSize: MainAxisSize.min, spacing: 2, children: [
-          Text(_only?.label ?? 'All', style: TextStyle(color: context.accent)),
-          Icon(Icons.expand_more, size: 18, color: context.accent),
-        ]),
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      onPressed: () => showCupertinoModalPopup<void>(
+        context: context,
+        builder: (context) => CupertinoActionSheet(
+          title: const Text('Show'),
+          actions: [
+            CupertinoActionSheetAction(
+              isDefaultAction: _only == null,
+              onPressed: () {
+                setState(() => _only = null);
+                Navigator.pop(context);
+              },
+              child: const Text('All'),
+            ),
+            for (final series in ProgressSeries.values)
+              CupertinoActionSheetAction(
+                isDefaultAction: _only == series,
+                onPressed: () {
+                  setState(() => _only = series);
+                  Navigator.pop(context);
+                },
+                child: Text(series.label),
+              ),
+          ],
+          cancelButton: CupertinoActionSheetAction(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        ),
       ),
+      child: Row(mainAxisSize: MainAxisSize.min, spacing: 2, children: [
+        Text(_only?.label ?? 'All'),
+        const Icon(CupertinoIcons.chevron_down, size: 14),
+      ]),
     );
   }
 
@@ -109,8 +125,8 @@ class _WordProgressChartState extends State<WordProgressChart> {
     return Wrap(spacing: 16, children: [
       for (final series in _shown)
         Row(mainAxisSize: MainAxisSize.min, spacing: 6, children: [
-          Container(width: 8, height: 8, decoration: BoxDecoration(color: series.color, shape: BoxShape.circle)),
-          Text(series.label, style: Theme.of(context).textTheme.bodySmall),
+          Container(width: 8, height: 8, decoration: BoxDecoration(color: context.resolve(series.color), shape: BoxShape.circle)),
+          Text(series.label, style: context.footnote),
         ]),
     ]);
   }
@@ -123,7 +139,10 @@ class _WordProgressChartState extends State<WordProgressChart> {
       minY: 0,
       maxY: (_peak < 1 ? 1 : _peak).toDouble(),
       lineTouchData: const LineTouchData(enabled: false),
-      gridData: const FlGridData(drawVerticalLine: false),
+      gridData: FlGridData(
+        drawVerticalLine: false,
+        getDrawingHorizontalLine: (_) => FlLine(color: context.hairline, strokeWidth: 0.5),
+      ),
       borderData: FlBorderData(show: false),
       titlesData: FlTitlesData(
         topTitles: const AxisTitles(),
@@ -154,7 +173,7 @@ class _WordProgressChartState extends State<WordProgressChart> {
       lineBarsData: [
         for (final series in _shown)
           LineChartBarData(
-            color: series.color,
+            color: context.resolve(series.color),
             barWidth: 2.5,
             isCurved: true,
             preventCurveOverShooting: true,

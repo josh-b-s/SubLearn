@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,9 +6,10 @@ import '../../state/dictionary_provider.dart';
 import '../../state/session_transcript_provider.dart';
 import '../../state/words_provider.dart';
 import '../components/empty_state.dart';
+import '../components/nav_text_button.dart';
+import '../components/pushed_page.dart';
 import '../components/word_card.dart';
 import '../components/word_detail_sheet.dart';
-import '../theme/app_colors.dart';
 
 /// What the latest session heard, line by line. Tap a word to look it up or save it.
 class TranscriptScreen extends ConsumerWidget {
@@ -21,21 +22,18 @@ class TranscriptScreen extends ConsumerWidget {
     final saved = ref.watch(savedWordSetProvider);
     ref.listen(wordsProvider.select((w) => w.length), (_, __) => HapticFeedback.selectionClick());
 
-    return Scaffold(
-      backgroundColor: context.groupedBackground,
-      appBar: AppBar(
-        title: const Text('Transcript'),
-        automaticallyImplyLeading: false,
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Done'))],
-      ),
-      body: lines.isEmpty
+    return PushedPage(
+      title: 'Transcript',
+      showsBackButton: false,
+      trailing: NavTextButton(label: 'Done', bold: true, onPressed: () => Navigator.pop(context)),
+      child: lines.isEmpty
           ? const EmptyState(
-              icon: Icons.notes,
-              title: 'No transcript yet',
+              icon: CupertinoIcons.text_alignleft,
+              title: 'No Transcript Yet',
               description: 'Lines appear here as they are heard.',
             )
           : dictionary == null
-              ? const Center(child: CircularProgressIndicator.adaptive())
+              ? const Center(child: CupertinoActivityIndicator())
               : ListView.separated(
                   reverse: true,
                   padding: const EdgeInsets.all(16),

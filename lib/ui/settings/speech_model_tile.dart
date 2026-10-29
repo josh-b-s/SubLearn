@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../state/speech_model_provider.dart';
-import '../theme/app_colors.dart';
+import '../components/grouped_row.dart';
 
 /// Download or delete the offline speech model.
 class SpeechModelTile extends ConsumerWidget {
@@ -21,14 +21,22 @@ class SpeechModelTile extends ConsumerWidget {
       SpeechModelStatus.installed => 'Downloaded',
     };
 
-    return ListTile(
-      title: const Text('Offline speech model'),
-      subtitle: Text(subtitle, style: TextStyle(color: model.error == null ? context.mutedText : Theme.of(context).colorScheme.error)),
+    return GroupedRow(
+      title: 'Offline speech model',
+      subtitle: subtitle,
       trailing: switch (model.status) {
         SpeechModelStatus.checking => null,
-        SpeechModelStatus.missing => TextButton(onPressed: controller.download, child: const Text('Download')),
-        SpeechModelStatus.downloading => SizedBox(width: 24, height: 24, child: CircularProgressIndicator(value: progress, strokeWidth: 3)),
-        SpeechModelStatus.installed => TextButton(onPressed: controller.remove, child: const Text('Delete')),
+        SpeechModelStatus.missing => CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: controller.download,
+            child: const Text('Download'),
+          ),
+        SpeechModelStatus.downloading => const CupertinoActivityIndicator(),
+        SpeechModelStatus.installed => CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: controller.remove,
+            child: const Text('Delete'),
+          ),
       },
     );
   }

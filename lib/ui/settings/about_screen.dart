@@ -1,15 +1,18 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
+import '../components/pushed_page.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('About')),
-      body: ListView(
+    return PushedPage(
+      title: 'About',
+      backLabel: 'Settings',
+      child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           const _Heading('App'),
@@ -65,7 +68,7 @@ class _Heading extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(top: 20, bottom: 6),
-        child: Text(text, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        child: Text(text, style: context.headline.copyWith(fontWeight: FontWeight.bold)),
       );
 }
 
@@ -78,15 +81,14 @@ class _Credit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: text.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-          Text(detail, style: text.bodyMedium?.copyWith(color: context.mutedText)),
-          if (link != null) SelectableText(link!, style: text.bodySmall?.copyWith(color: context.accent)),
+          Text(title, style: context.subhead.copyWith(fontWeight: FontWeight.bold)),
+          Text(detail, style: context.subhead.copyWith(color: context.mutedText)),
+          if (link != null) Text(link!, style: context.footnote.copyWith(color: context.accent)),
         ],
       ),
     );

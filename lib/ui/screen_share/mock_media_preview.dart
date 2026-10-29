@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../models/session/pip_line.dart';
 import 'pip_preview_panel.dart';
@@ -22,7 +22,7 @@ class MockMediaPreview extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF0F1A33), Colors.black, Color(0xFF73401A)],
+            colors: [Color(0xFF0F1A33), CupertinoColors.black, Color(0xFF73401A)],
           ),
         ),
         child: Stack(

@@ -1,5 +1,6 @@
-import 'package:flutter/cupertino.dart' show CupertinoSearchTextField;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+
+import '../theme/app_shape.dart';
 
 /// Search box shown above a results list.
 class SearchField extends StatelessWidget {
@@ -11,11 +12,13 @@ class SearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: CupertinoSearchTextField(
         autofocus: autofocus,
         onChanged: onChanged,
         autocorrect: false,
+        borderRadius: const BorderRadius.all(cardRadius),
+        padding: const EdgeInsets.all(10),
         placeholder: 'Search word, pinyin or meaning…',
       ),
     );

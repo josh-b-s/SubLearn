@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 import 'onboarding_page.dart';
 
 class OnboardingPageView extends StatelessWidget {
@@ -10,7 +11,6 @@ class OnboardingPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     // Scrolls so large font sizes still fit.
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
@@ -20,14 +20,14 @@ class OnboardingPageView extends StatelessWidget {
           ExcludeSemantics(child: Icon(page.icon, size: 72, color: context.accent)),
           Semantics(
             header: true,
-            child: Text(page.title, textAlign: TextAlign.center, style: text.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+            child: Text(page.title, textAlign: TextAlign.center, style: context.title1.copyWith(fontWeight: FontWeight.bold)),
           ),
-          Text(page.text, textAlign: TextAlign.center, style: text.bodyLarge?.copyWith(color: context.mutedText)),
+          Text(page.text, textAlign: TextAlign.center, style: context.body.copyWith(color: context.mutedText)),
           if (page.note != null)
             Text(
               page.note!,
               textAlign: TextAlign.center,
-              style: text.bodySmall?.copyWith(color: context.accent, fontWeight: FontWeight.w500),
+              style: context.footnote.copyWith(color: context.accent, fontWeight: FontWeight.w500),
             ),
         ],
       ),

@@ -10,6 +10,7 @@ import '../../state/tab_provider.dart';
 import '../components/empty_state.dart';
 import '../components/section_label.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_shape.dart';
 import 'session_breakdown_bar.dart';
 import 'session_top_word_row.dart';
 import 'transcript_screen.dart';
@@ -130,8 +131,8 @@ class _Card extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: context.cardBackground, borderRadius: BorderRadius.circular(20)),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: context.cardBackground, borderRadius: const BorderRadius.all(cardRadius)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: 12, children: [
         SectionLabel(title),
         child,

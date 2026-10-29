@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 /// Dims and shrinks its child slightly while pressed. Skips the shrink and animation when the
 /// system asks for reduced motion.

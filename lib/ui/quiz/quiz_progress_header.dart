@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
+import '../components/progress_bar.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 
 /// "4 / 10", percent complete and a bar, shown above each question.
 class QuizProgressHeader extends StatelessWidget {
@@ -12,7 +14,6 @@ class QuizProgressHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return Semantics(
       label: 'Quiz progress',
@@ -24,15 +25,15 @@ class QuizProgressHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('$index / $total', style: text.titleMedium?.copyWith(color: context.accent, fontWeight: FontWeight.w600)),
-              Text('${(fraction * 100).round()}% Complete', style: text.bodyMedium?.copyWith(color: context.mutedText)),
+              Text('$index / $total', style: context.body.copyWith(color: context.accent, fontWeight: FontWeight.w600)),
+              Text('${(fraction * 100).round()}% Complete', style: context.subhead.copyWith(color: context.mutedText)),
             ],
           ),
           TweenAnimationBuilder<double>(
             tween: Tween(end: fraction),
             duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 250),
             curve: Curves.easeOut,
-            builder: (_, value, __) => LinearProgressIndicator(value: value, borderRadius: BorderRadius.circular(4)),
+            builder: (_, value, __) => ProgressBar(value: value),
           ),
         ],
       ),

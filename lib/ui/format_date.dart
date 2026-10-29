@@ -10,3 +10,10 @@ String formatDayTime(DateTime d) {
   final minute = d.minute.toString().padLeft(2, '0');
   return '${formatDay(d)}, $hour:$minute ${d.hour < 12 ? 'am' : 'pm'}';
 }
+
+/// 12-hour clock time for minutes after midnight, such as 8:05 am.
+String formatMinutes(int minutes) {
+  final hour = minutes ~/ 60 % 12 == 0 ? 12 : minutes ~/ 60 % 12;
+  final minute = (minutes % 60).toString().padLeft(2, '0');
+  return '$hour:$minute ${minutes ~/ 60 < 12 ? 'am' : 'pm'}';
+}

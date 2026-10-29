@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart' show CupertinoSlidingSegmentedControl;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 /// iOS segmented control. Pass a null [onChanged] to lock it.
 class SegmentedPicker<T extends Object> extends StatelessWidget {

@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/quiz/choice_question.dart';
 import '../../state/core_providers.dart';
 import '../components/speak_button.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 import 'auto_speak.dart';
 import 'option_button.dart';
 import 'quiz_prompt_card.dart';
@@ -37,13 +38,13 @@ class ChoiceQuestionView extends ConsumerWidget {
             style: TextStyle(fontSize: chinese ? 48 : 28, fontWeight: FontWeight.bold),
           ),
           if (question.hint.isNotEmpty)
-            Text(question.hint, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: context.mutedText)),
+            Text(question.hint, style: context.body.copyWith(color: context.mutedText)),
           if (chinese) AutoSpeak(word: question.prompt, child: SpeakButton(word: question.prompt)),
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               chinese ? 'What does this mean?' : 'Which word means this?',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: context.body,
             ),
           ),
         ]),

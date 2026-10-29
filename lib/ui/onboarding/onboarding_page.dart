@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../services/platform_info.dart';
 
@@ -14,7 +14,7 @@ class OnboardingPage {
   /// Same order and icons as the tab bar.
   static List<OnboardingPage> get all => [
         OnboardingPage(
-          icon: Icons.airplay,
+          icon: CupertinoIcons.captions_bubble,
           title: 'Subtitles for what you watch',
           text:
               'Play a video or podcast in Chinese. The app listens and shows each word with its pinyin and meaning in a floating window. Words you hear are collected so you can review them afterwards.',
@@ -23,20 +23,20 @@ class OnboardingPage {
               : 'Only available on iOS. Other platforms show a message on that tab instead.',
         ),
         const OnboardingPage(
-          icon: Icons.swap_horiz,
+          icon: CupertinoIcons.arrow_right_arrow_left,
           title: 'Look up any Chinese text',
           text:
               'Speak into the microphone or paste text. Tap a word to see its meaning, pinyin and each character, then save it to your vocabulary.',
           note: 'In Settings you can choose on-device or server speech recognition.',
         ),
         const OnboardingPage(
-          icon: Icons.bookmark_border,
+          icon: CupertinoIcons.bookmark,
           title: 'Keep the words you save',
           text:
               'Search and filter your words by mastery level, or set a level yourself. You can also search the whole dictionary and add words you already know.',
         ),
         const OnboardingPage(
-          icon: Icons.psychology_outlined,
+          icon: CupertinoIcons.rectangle_stack,
           title: 'Review with spaced repetition',
           text:
               'Questions get harder as a word moves up a level. Words you miss come back at the end of the quiz. The stats screen tracks your streak and progress.',

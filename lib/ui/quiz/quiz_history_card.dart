@@ -1,9 +1,12 @@
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../models/quiz_record.dart';
+import '../components/pressable.dart';
+import '../components/progress_ring.dart';
 import '../format_date.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_shape.dart';
+import '../theme/app_text.dart';
 
 /// One past quiz: score ring, how it went, and when.
 class QuizHistoryCard extends StatelessWidget {
@@ -25,34 +28,20 @@ class QuizHistoryCard extends StatelessWidget {
       button: true,
       onTap: onTap,
       excludeSemantics: true,
-      child: Material(
-        color: context.cardBackground,
-        borderRadius: BorderRadius.circular(20),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+      child: Pressable(
+        child: GestureDetector(
           onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(color: context.cardBackground, borderRadius: const BorderRadius.all(cardRadius)),
             child: Row(
               spacing: 16,
               children: [
-                SizedBox(
-                  width: 52,
-                  height: 52,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircularProgressIndicator.adaptive(
-                        value: fraction,
-                        strokeWidth: 5,
-                        strokeCap: StrokeCap.round,
-                        backgroundColor: context.chipBackground,
-                      ),
-                      Text(
-                        '${(fraction * 100).round()}%',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: context.accent),
-                      ),
-                    ],
+                ProgressRing(
+                  value: fraction,
+                  child: Text(
+                    '${(fraction * 100).round()}%',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: context.accent),
                   ),
                 ),
                 Expanded(
@@ -60,11 +49,11 @@ class QuizHistoryCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(summary),
-                      Text(when, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.mutedText)),
+                      Text(when, style: context.footnote.copyWith(color: context.mutedText)),
                     ],
                   ),
                 ),
-                Icon(CupertinoIcons.chevron_forward, color: context.mutedText),
+                Icon(CupertinoIcons.chevron_forward, size: 16, color: context.resolve(CupertinoColors.tertiaryLabel)),
               ],
             ),
           ),

@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 
 /// A small number with a label underneath.
 class StatCard extends StatelessWidget {
@@ -13,24 +14,23 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     return Semantics(
       label: label,
       value: [value, detail].whereType<String>().join(', '),
       excludeSemantics: true,
       child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: context.cardBackground, borderRadius: BorderRadius.circular(16)),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(color: context.cardBackground, borderRadius: BorderRadius.circular(24)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              child: Text(value, maxLines: 1, style: text.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: accent)),
+              child: Text(value, maxLines: 1, style: context.title2.copyWith(fontWeight: FontWeight.bold, color: accent)),
             ),
-            Text(label, style: text.bodySmall?.copyWith(color: context.mutedText)),
-            if (detail != null) Text(detail!, style: text.labelSmall?.copyWith(color: context.mutedText)),
+            Text(label, style: context.footnote.copyWith(color: context.mutedText)),
+            if (detail != null) Text(detail!, style: context.caption2.copyWith(color: context.mutedText)),
           ],
         ),
       ),

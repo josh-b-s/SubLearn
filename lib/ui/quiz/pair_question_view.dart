@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../models/quiz/pair_question.dart';
 import '../components/speak_button.dart';
+import '../theme/app_text.dart';
 import 'auto_speak.dart';
 import 'quiz_columns_view.dart';
 import 'quiz_prompt_card.dart';
@@ -44,7 +45,7 @@ class PairQuestionView extends StatelessWidget {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               'Pick the ${question.first.title.toLowerCase()} and the ${question.second.title.toLowerCase()}',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: context.body,
             ),
           ),
         ]),

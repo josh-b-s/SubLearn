@@ -42,7 +42,7 @@ class SpeechModelController extends Notifier<SpeechModelState> {
       }
       await refresh();
     } on Exception catch (e) {
-      state = SpeechModelState(status: SpeechModelStatus.missing, error: e is SpeechModelException ? e.message : "The download failed. Check your connection and try again.");
+      state = SpeechModelState(status: SpeechModelStatus.missing, error: e is SpeechModelException ? e.message : 'The download failed. Check your connection and try again.');
     }
   }
 

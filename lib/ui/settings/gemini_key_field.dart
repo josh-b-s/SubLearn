@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart' show CupertinoTextField, OverlayVisibilityMode;
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../state/gemini_key_provider.dart';
@@ -32,7 +31,7 @@ class _GeminiKeyFieldState extends ConsumerState<GeminiKeyField> {
       _loaded = true;
     }
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       child: CupertinoTextField(
         controller: _controller,
         placeholder: 'Gemini API key',

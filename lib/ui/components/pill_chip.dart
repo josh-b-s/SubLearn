@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../theme/app_colors.dart';
 
@@ -14,7 +14,7 @@ class PillChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final foreground = selected ? CupertinoColors.white : context.resolve(CupertinoColors.label);
     return Semantics(
       button: true,
       selected: selected,
@@ -30,15 +30,12 @@ class PillChip extends StatelessWidget {
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
-            color: selected ? scheme.primary : context.chipBackground,
+            color: selected ? context.accent : context.chipBackground,
             borderRadius: BorderRadius.circular(18),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, spacing: 6, children: [
-            if (icon != null) Icon(icon, size: 16, color: selected ? scheme.onPrimary : scheme.onSurface),
-            Text(
-              label,
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: selected ? scheme.onPrimary : scheme.onSurface),
-            ),
+            if (icon != null) Icon(icon, size: 16, color: foreground),
+            Text(label, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: foreground)),
           ]),
         ),
       ),

@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../models/quiz/quiz_feedback.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 
 /// Result of the answer just given, shown above the Next button.
 class QuizFeedbackBanner extends StatelessWidget {
@@ -11,10 +12,10 @@ class QuizFeedbackBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tint = feedback.correct ? Colors.green : Colors.red;
+    final tint = context.resolve(feedback.correct ? CupertinoColors.systemGreen : CupertinoColors.systemRed);
     final textTint = feedback.correct ? context.successText : context.errorText;
     final message = feedback.correct ? 'Correct! ${feedback.explanation}' : 'Not quite. Answer: ${feedback.answerText}';
-    final small = Theme.of(context).textTheme.bodySmall;
+    final small = context.footnote;
     return Semantics(
       liveRegion: true,
       child: Column(
@@ -28,14 +29,14 @@ class QuizFeedbackBanner extends StatelessWidget {
             child: Row(
               spacing: 8,
               children: [
-                Icon(feedback.correct ? Icons.check : Icons.close, color: textTint, size: 18),
+                Icon(feedback.correct ? CupertinoIcons.checkmark : CupertinoIcons.xmark, color: textTint, size: 18),
                 Expanded(child: Text(message, style: TextStyle(color: textTint, fontWeight: FontWeight.w600))),
               ],
             ),
           ),
-          if (!feedback.correct) Text("You'll see this one again at the end.", style: small?.copyWith(color: context.mutedText)),
+          if (!feedback.correct) Text("You'll see this one again at the end.", style: small.copyWith(color: context.mutedText)),
           if (feedback.levelNote != null)
-            Text(feedback.levelNote!, style: small?.copyWith(color: context.accent, fontWeight: FontWeight.w500)),
+            Text(feedback.levelNote!, style: small.copyWith(color: context.accent, fontWeight: FontWeight.w500)),
         ],
       ),
     );
