@@ -19,6 +19,8 @@ import android.media.projection.MediaProjection
  */
 object AudioRecordFactory {
 
+    const val SAMPLE_RATE = 16000
+
     sealed class Source {
         object Mic : Source()
         data class PlaybackCapture(val projection: MediaProjection) : Source()
@@ -33,7 +35,7 @@ object AudioRecordFactory {
     @SuppressLint("MissingPermission", "NewApi")
     fun create(
         source: Source,
-        sampleRate: Int = SttEngine.SAMPLE_RATE,
+        sampleRate: Int = SAMPLE_RATE,
         minBufferFloor: Int = 0
     ): AudioRecord? {
         val bufferSize = AudioRecord.getMinBufferSize(

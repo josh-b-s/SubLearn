@@ -13,6 +13,10 @@ import 'about_screen.dart';
 import 'gemini_key_field.dart';
 import 'reminder_settings_section.dart';
 import 'settings_section.dart';
+import 'speech_model_tile.dart';
+
+const _modelFooter =
+    'The downloaded model is used first, for the Translate microphone and for Screen Share on Android. The switch below only matters when it is missing.';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -43,10 +47,11 @@ class SettingsScreen extends ConsumerWidget {
           ),
           SettingsSection(
             title: 'Speech',
-            footer: isIos
+            footer: '$_modelFooter ${isIos
                 ? "On: works offline with no time limit, but needs the Mandarin model and is less accurate. Off: Apple's servers, more accurate but needs internet. The Simulator doesn't support on-device, so turn this off there."
-                : 'On: works offline, but needs the Mandarin speech model on the device and may be less accurate. Off: uses the platform speech service, which is more accurate but needs internet.',
+                : 'On: works offline, but needs the Mandarin speech model on the device and may be less accurate. Off: uses the platform speech service, which is more accurate but needs internet.'}',
             children: [
+              const SpeechModelTile(),
               SwitchListTile.adaptive(
                 title: const Text('On-device recognition'),
                 value: settings.preferOnDeviceSpeech,

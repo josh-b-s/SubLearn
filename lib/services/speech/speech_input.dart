@@ -4,16 +4,12 @@ import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
-class SpeechInputException implements Exception {
-  const SpeechInputException(this.message);
-  final String message;
+import 'mic_transcriber.dart';
 
-  @override
-  String toString() => message;
-}
+/// Microphone transcription through the platform's speech service. It keeps going across the per-session time limit.
+class PlatformMicTranscriber implements MicTranscriber {
+  PlatformMicTranscriber({required bool onDevice}) : _onDevice = onDevice;
 
-/// Microphone transcription that keeps going across the platform's per-session time limit.
-class SpeechInput {
   static const _maxFailures = 3;
   static const _onDeviceUnavailable =
       "On-device recognition isn't available here (the Simulator doesn't support it). Turn it off in Settings > Speech.";
@@ -23,18 +19,18 @@ class SpeechInput {
   bool _active = false;
   bool _accepting = false;
   bool _restarting = false;
-  bool _onDevice = true;
+  final bool _onDevice;
   int _failures = 0;
   String _committed = '';
   String? _locale;
   void Function(String text)? _onText;
   void Function(String message)? _onFailure;
 
+  @override
   bool get isActive => _active;
 
-  /// [onText] gets the whole transcript so far, replacing the previous one.
+  @override
   Future<void> start({
-    required bool onDevice,
     required void Function(String text) onText,
     required void Function(String message) onFailure,
   }) async {
@@ -45,7 +41,6 @@ class SpeechInput {
       );
     }
     _locale = await _chineseLocale();
-    _onDevice = onDevice;
     _onText = onText;
     _onFailure = onFailure;
     _committed = '';
@@ -55,6 +50,7 @@ class SpeechInput {
     await _listen();
   }
 
+  @override
   Future<void> stop() async {
     _active = false;
     await _speech.stop();

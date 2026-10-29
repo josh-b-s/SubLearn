@@ -37,10 +37,16 @@ Targets: Android first. iOS, web and desktop share the same code, with the platf
 ### Screen Share: Android
 
 - [x] The floating window is Flutter (`lib/ui/subtitle_window/`), run by a second engine inside a system overlay. Title bar: left corner resizes, the middle moves, the right button opens the app. The body scrolls. The window keeps its size and place between sessions.
-- [x] Speech comes from the Sherpa-ONNX paraformer model on the device, not `speech_to_text`. The "on-device speech" setting has no effect here.
+- [x] Speech comes from the downloaded Sherpa-ONNX model, run from Dart. Kotlin only captures audio and streams it over `subtitle_learn/screen_share/audio`. Android has no platform fallback for screen audio, so it needs the model. The "on-device speech" setting has no effect here.
 - [ ] Audio clips are not ported. "Replay from video" never shows on Android.
 - [ ] Apps can opt out of audio capture, and then screen audio is silent. Use the microphone source for those.
 - [ ] Scrollback is capped by `PipSubtitleModel.maxTokens` (40 cards), shared with iOS.
+
+### Speech engine order
+
+- [x] The Translate microphone uses the downloaded Sherpa model first and falls back to `speech_to_text` when the model is missing or won't start. The same Dart engine runs Screen Share on Android.
+- [ ] Screen Share on iOS still uses the platform recognizer for both sources. The broadcast extension has a memory limit of roughly 50 MB, too small for this model, and the iOS microphone path records clips natively. Moving it needs a look at the Swift side.
+- [ ] Recognition runs in a background isolate, so the UI stays smooth, but nothing has been timed on a real device.
 
 ### Screen Share: behaviour
 
@@ -140,22 +146,9 @@ iOS, `ios/Runner/Info.plist`:
 
 ## Screen Share on Android
 
-Needs Android 10 or later. The speech model and the Sherpa-ONNX native libraries are not in the repo.
+Needs Android 10 or later. Speech recognition uses the Sherpa-ONNX streaming Paraformer model (Mandarin and English), run from Dart with the `sherpa_onnx` package. Nothing is bundled. Open Settings > Speech > Offline speech model and tap Download once, on Wi-Fi. The files go into the app's support folder.
 
-From this directory, with the native Android app checked out next to it at `../SubtitleLearn`:
-
-```
-curl -LO https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-paraformer-bilingual-zh-en.tar.bz2
-tar -xjf sherpa-onnx-streaming-paraformer-bilingual-zh-en.tar.bz2
-mkdir -p android/app/src/main/assets/model
-cp sherpa-onnx-streaming-paraformer-bilingual-zh-en/{encoder.int8.onnx,decoder.int8.onnx,tokens.txt} android/app/src/main/assets/model/
-for abi in arm64-v8a armeabi-v7a x86_64; do
-  mkdir -p android/app/src/main/jniLibs/$abi
-  cp ../SubtitleLearn/app/src/main/jniLibs/$abi/{libonnxruntime.so,libsherpa-onnx-jni.so} android/app/src/main/jniLibs/$abi/
-done
-```
-
-On first use the app asks for the microphone, then sends you to the "Display over other apps" screen. Allow it and start again. Screen audio then shows the system capture prompt.
+The first time you start, the app asks for the microphone, then sends you to the "Display over other apps" screen. Allow it and start again. Screen audio then shows the system capture prompt.
 
 ## Layout
 

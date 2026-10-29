@@ -9,7 +9,6 @@ import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import com.joshbs.sublearn.audio.SharedRecognizer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -30,6 +29,7 @@ class ScreenSharePlugin :
     private lateinit var context: Context
     private lateinit var methods: MethodChannel
     private lateinit var events: EventChannel
+    private lateinit var audio: EventChannel
     private var binding: ActivityPluginBinding? = null
     private var overlay: OverlayWindow? = null
 
@@ -40,12 +40,24 @@ class ScreenSharePlugin :
         context = flutter.applicationContext
         methods = MethodChannel(flutter.binaryMessenger, "subtitle_learn/screen_share").also { it.setMethodCallHandler(this) }
         events = EventChannel(flutter.binaryMessenger, "subtitle_learn/screen_share/events").also { it.setStreamHandler(this) }
+        audio = EventChannel(flutter.binaryMessenger, "subtitle_learn/screen_share/audio").also {
+            it.setStreamHandler(object : EventChannel.StreamHandler {
+                override fun onListen(arguments: Any?, sink: EventChannel.EventSink) {
+                    ScreenShareAudio.sink = sink
+                }
+
+                override fun onCancel(arguments: Any?) {
+                    ScreenShareAudio.sink = null
+                }
+            })
+        }
     }
 
     override fun onDetachedFromEngine(flutter: FlutterPlugin.FlutterPluginBinding) {
         endSession()
         methods.setMethodCallHandler(null)
         events.setStreamHandler(null)
+        audio.setStreamHandler(null)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -94,8 +106,8 @@ class ScreenSharePlugin :
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             return mapOf("unsupportedReason" to "Screen Share on Android needs Android 10 or later.")
         }
-        // The shared channel reads these two keys: the window can be shown, and the speech model is bundled.
-        return mapOf("pip" to true, "broadcastExtension" to SharedRecognizer.isBundled(context.assets))
+        // Whether the speech model is downloaded is known to Dart, which fills in the other flag.
+        return mapOf("pip" to true)
     }
 
     private fun sourceOf(call: MethodCall) =
@@ -105,9 +117,6 @@ class ScreenSharePlugin :
     private fun start(source: CaptureService.Source, result: MethodChannel.Result) {
         val activity = binding?.activity ?: return result.error("no_activity", "The app is not in the foreground.", null)
 
-        if (!SharedRecognizer.isBundled(context.assets)) {
-            return result.error("no_model", "The speech model is not in this build. See Screen Share on Android in README.md.", null)
-        }
         if (!Settings.canDrawOverlays(context)) {
             activity.startActivity(
                 Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))

@@ -2,9 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/word_token.dart';
 import '../services/learning/mastery_redactor.dart';
-import '../services/speech/speech_input.dart';
+import '../services/speech/mic_transcriber.dart';
+import '../services/speech/sherpa_first_mic_transcriber.dart';
 import 'dictionary_provider.dart';
 import 'settings_provider.dart';
+import 'speech_model_provider.dart';
 import 'words_provider.dart';
 
 class TranslateState {
@@ -23,14 +25,12 @@ class TranslateState {
 }
 
 class TranslateController extends Notifier<TranslateState> {
-  final _speech = SpeechInput();
+  MicTranscriber? _mic;
   String _textBeforeListening = '';
 
   @override
   TranslateState build() {
-    ref.onDispose(() {
-      if (_speech.isActive) _speech.stop();
-    });
+    ref.onDispose(() => _mic?.stop());
     return const TranslateState();
   }
 
@@ -41,13 +41,17 @@ class TranslateController extends Notifier<TranslateState> {
   Future<void> startListening() async {
     if (state.isListening) return;
     _textBeforeListening = state.inputText.trim();
+    final mic = SherpaFirstMicTranscriber(
+      store: ref.read(sherpaModelStoreProvider),
+      onDevice: ref.read(settingsProvider).preferOnDeviceSpeech,
+    );
     try {
-      await _speech.start(
-        onDevice: ref.read(settingsProvider).preferOnDeviceSpeech,
+      await mic.start(
         // The recognizer returns the whole transcript so far, so replace rather than append.
         onText: (transcript) => state = state.copyWith(inputText: _textBeforeListening + transcript),
         onFailure: (message) => state = state.copyWith(isListening: false, speechError: message),
       );
+      _mic = mic;
       state = state.copyWith(isListening: true, clearError: true);
     } on SpeechInputException catch (e) {
       state = state.copyWith(speechError: e.message);
@@ -57,7 +61,7 @@ class TranslateController extends Notifier<TranslateState> {
   Future<void> stopListening() async {
     if (!state.isListening) return;
     state = state.copyWith(isListening: false);
-    await _speech.stop();
+    await _mic?.stop();
   }
 }
 

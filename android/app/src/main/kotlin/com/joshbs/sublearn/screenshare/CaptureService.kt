@@ -15,15 +15,15 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import android.util.Log
 import com.joshbs.sublearn.R
 import com.joshbs.sublearn.audio.AudioRecordFactory
-import com.joshbs.sublearn.audio.AudioTranscriptionLoop
-import com.joshbs.sublearn.audio.SttEngine
 
 /**
- * Foreground service that records system playback audio (or the mic), runs speech recognition
- * and reports the text to Dart through [ScreenShareEvents]. The overlay window is not owned here.
+ * Foreground service that records system playback audio (or the mic) and streams it to Dart through
+ * [ScreenShareAudio]. Dart does the speech recognition. The overlay window is not owned here.
  */
 class CaptureService : Service() {
 
@@ -71,10 +71,7 @@ class CaptureService : Service() {
 
     private fun capture(source: Source) {
         var record: AudioRecord? = null
-        var engine: SttEngine? = null
         try {
-            // Loading the model takes seconds, so do it before the record starts filling its buffer.
-            engine = SttEngine(assets)
             record = openRecord(source)
             if (record == null) {
                 ScreenShareEvents.error("Couldn't open the audio input.")
@@ -83,22 +80,29 @@ class CaptureService : Service() {
             record.startRecording()
             ScreenShareEvents.started()
 
-            AudioTranscriptionLoop(record, engine).run(
-                isRunning = { running },
-                onResult = { ScreenShareEvents.text(it, isFinal = false) },
-                onEndpoint = { if (it.isNotBlank()) ScreenShareEvents.text(it, isFinal = true) },
-                onReadError = { code -> ScreenShareEvents.error("audio read failed ($code)") },
-                onProcessError = { Log.w(TAG, "Dropped a chunk: ${it.message}") }
-            )
-        } catch (e: Throwable) { // Throwable: a missing sherpa .so is an UnsatisfiedLinkError.
+            val samples = ShortArray(CHUNK_SAMPLES)
+            while (running) {
+                val read = record.read(samples, 0, samples.size)
+                if (read < 0) {
+                    ScreenShareEvents.error("audio read failed ($read)")
+                    break
+                }
+                if (read > 0) ScreenShareAudio.send(toBytes(samples, read))
+            }
+        } catch (e: Throwable) {
             Log.e(TAG, "Capture failed", e)
             ScreenShareEvents.error(e.message ?: e.javaClass.simpleName)
         } finally {
             record?.stop()
             record?.release()
-            engine?.release()
             stopSelf()
         }
+    }
+
+    private fun toBytes(samples: ShortArray, count: Int): ByteArray {
+        val buffer = ByteBuffer.allocate(count * 2).order(ByteOrder.LITTLE_ENDIAN)
+        buffer.asShortBuffer().put(samples, 0, count)
+        return buffer.array()
     }
 
     private fun openRecord(source: Source): AudioRecord? = when (source) {
@@ -147,6 +151,7 @@ class CaptureService : Service() {
         private const val EXTRA_RESULT_CODE = "resultCode"
         private const val EXTRA_DATA = "data"
         private const val JOIN_TIMEOUT_MS = 1500L
+        private const val CHUNK_SAMPLES = 1600 // 100 ms at 16 kHz
 
         // Some devices report a minimum buffer that is too small to keep up with the mic.
         private const val MIC_BUFFER_FLOOR = 4096

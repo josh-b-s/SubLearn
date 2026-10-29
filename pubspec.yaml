@@ -20,6 +20,9 @@ dependencies:
   timezone: ^0.10.0
   fl_chart: ^0.70.2
   app_settings: ^5.1.1
+  sherpa_onnx: ^1.12.14
+  record: ^7.1.2
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
