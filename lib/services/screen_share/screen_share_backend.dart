@@ -18,6 +18,8 @@ class ScreenShareCapabilities {
   /// False on platforms without a backend, or when the native code isn't installed.
   final bool isSupported;
   final bool pipSupported;
+
+  /// The native piece screen audio needs: the iOS broadcast extension, or the Android speech model.
   final bool broadcastExtensionFound;
   final String unsupportedReason;
 }

@@ -12,7 +12,7 @@ Targets: Android first. iOS, web and desktop share the same code, with the platf
 - Quiz: four mastery levels, SM-2 scheduling, missed questions return at the end, quiz history. Level 3 sentences come from Gemini and are cached.
 - Stats: streak, accuracy by period, weekly progress chart, 90 day heatmap.
 - Settings: theme, on-device speech, speak slowly, daily reminder (Android and iOS), Gemini key in secure storage, questions per quiz, onboarding, about.
-- Screen Share (iOS, 17 or later): live Mandarin subtitles from system audio or the mic, word cards in a Picture in Picture window, session summary with a review shortcut, transcript. The native Swift code is in `ios_native/`, see its README for the Xcode steps. Android, web and desktop show a "not available" screen.
+- Screen Share (iOS 17 or later, Android 10 or later): live Mandarin subtitles from system audio or the mic, word cards in a floating window, session summary with a review shortcut, transcript. On iOS the window is Picture in Picture, with native Swift in `ios_native/` (see its README). On Android it is an overlay drawn by Flutter, see Screen Share on Android below. Web and desktop show a "not available" screen.
 - Tests ported from the Swift suite: mastery, SM-2, dictionary, search, segmentation, stats, reminders, sorting, session word tracking.
 
 ## Differences from the Swift app
@@ -33,6 +33,14 @@ Targets: Android first. iOS, web and desktop share the same code, with the platf
 - [x] The "Hide learned" chip on the live screen is gone. The setting lives only in Settings.
 - [x] "Show PiP" shows only while live and the PiP window is closed.
 - [x] Saving or removing a word in the transcript gives a selection haptic.
+
+### Screen Share: Android
+
+- [x] The floating window is Flutter (`lib/ui/subtitle_window/`), run by a second engine inside a system overlay. Title bar: left corner resizes, the middle moves, the right button opens the app. The body scrolls. The window keeps its size and place between sessions.
+- [x] Speech comes from the Sherpa-ONNX paraformer model on the device, not `speech_to_text`. The "on-device speech" setting has no effect here.
+- [ ] Audio clips are not ported. "Replay from video" never shows on Android.
+- [ ] Apps can opt out of audio capture, and then screen audio is silent. Use the microphone source for those.
+- [ ] Scrollback is capped by `PipSubtitleModel.maxTokens` (40 cards), shared with iOS.
 
 ### Screen Share: behaviour
 
@@ -129,6 +137,25 @@ iOS, `ios/Runner/Info.plist`:
 <key>NSMicrophoneUsageDescription</key><string>Used to turn your speech into text.</string>
 <key>NSSpeechRecognitionUsageDescription</key><string>Used to transcribe Mandarin you speak.</string>
 ```
+
+## Screen Share on Android
+
+Needs Android 10 or later. The speech model and the Sherpa-ONNX native libraries are not in the repo.
+
+From this directory, with the native Android app checked out next to it at `../SubtitleLearn`:
+
+```
+curl -LO https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-paraformer-bilingual-zh-en.tar.bz2
+tar -xjf sherpa-onnx-streaming-paraformer-bilingual-zh-en.tar.bz2
+mkdir -p android/app/src/main/assets/model
+cp sherpa-onnx-streaming-paraformer-bilingual-zh-en/{encoder.int8.onnx,decoder.int8.onnx,tokens.txt} android/app/src/main/assets/model/
+for abi in arm64-v8a armeabi-v7a x86_64; do
+  mkdir -p android/app/src/main/jniLibs/$abi
+  cp ../SubtitleLearn/app/src/main/jniLibs/$abi/{libonnxruntime.so,libsherpa-onnx-jni.so} android/app/src/main/jniLibs/$abi/
+done
+```
+
+On first use the app asks for the microphone, then sends you to the "Display over other apps" screen. Allow it and start again. Screen audio then shows the system capture prompt.
 
 ## Layout
 

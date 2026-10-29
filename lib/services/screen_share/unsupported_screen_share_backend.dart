@@ -8,7 +8,7 @@ class UnsupportedScreenShareBackend implements ScreenShareBackend {
 
   static const _defaultReason =
       'Screen Share needs system audio capture and a floating subtitle window. '
-      'That is only implemented on iOS so far.';
+      'That is only implemented on iOS and Android so far.';
 
   final String reason;
 
