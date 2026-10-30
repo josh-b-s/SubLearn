@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../../models/progress_series.dart';
 import '../../models/stats_snapshot.dart';
+import '../components/choice_menu.dart';
 import '../format_date.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
@@ -86,38 +87,18 @@ class _WordProgressChartState extends State<WordProgressChart> {
   }
 
   Widget _menu(BuildContext context) {
-    return CupertinoButton(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      onPressed: () => showCupertinoModalPopup<void>(
-        context: context,
-        builder: (context) => CupertinoActionSheet(
-          title: const Text('Show'),
-          actions: [
-            CupertinoActionSheetAction(
-              isDefaultAction: _only == null,
-              onPressed: () {
-                setState(() => _only = null);
-                Navigator.pop(context);
-              },
-              child: const Text('All'),
-            ),
-            for (final series in ProgressSeries.values)
-              CupertinoActionSheetAction(
-                isDefaultAction: _only == series,
-                onPressed: () {
-                  setState(() => _only = series);
-                  Navigator.pop(context);
-                },
-                child: Text(series.label),
-              ),
-          ],
-          cancelButton: CupertinoActionSheetAction(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        ),
+    return ChoiceMenu<ProgressSeries?>(
+      options: {null: 'All', for (final series in ProgressSeries.values) series: series.label},
+      selected: _only,
+      onSelected: (series) => setState(() => _only = series),
+      builder: (context, toggle) => CupertinoButton(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        onPressed: toggle,
+        child: Row(mainAxisSize: MainAxisSize.min, spacing: 2, children: [
+          Text(_only?.label ?? 'All'),
+          const Icon(CupertinoIcons.chevron_down, size: 14),
+        ]),
       ),
-      child: Row(mainAxisSize: MainAxisSize.min, spacing: 2, children: [
-        Text(_only?.label ?? 'All'),
-        const Icon(CupertinoIcons.chevron_down, size: 14),
-      ]),
     );
   }
 

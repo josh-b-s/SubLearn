@@ -12,6 +12,7 @@ import '../../state/review_logs_provider.dart';
 import '../../state/settings_provider.dart';
 import '../../state/words_provider.dart';
 import '../components/alerts.dart';
+import '../components/choice_menu.dart';
 import '../components/empty_state.dart';
 import '../components/hairline.dart';
 import '../components/icon_action.dart';
@@ -211,28 +212,11 @@ class _SortMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sort = ref.watch(settingsProvider.select((s) => s.vocabularySort));
-    final notifier = ref.read(settingsProvider.notifier);
-    return IconAction(
-      label: 'Sort: ${sort.label}',
-      icon: CupertinoIcons.arrow_up_arrow_down,
-      onPressed: () => showCupertinoModalPopup<void>(
-        context: context,
-        builder: (context) => CupertinoActionSheet(
-          title: const Text('Sort by'),
-          actions: [
-            for (final option in VocabularySort.values)
-              CupertinoActionSheetAction(
-                isDefaultAction: option == sort,
-                onPressed: () {
-                  notifier.setVocabularySort(option);
-                  Navigator.pop(context);
-                },
-                child: Text(option.label),
-              ),
-          ],
-          cancelButton: CupertinoActionSheetAction(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        ),
-      ),
+    return ChoiceMenu<VocabularySort>(
+      options: {for (final option in VocabularySort.values) option: option.label},
+      selected: sort,
+      onSelected: ref.read(settingsProvider.notifier).setVocabularySort,
+      builder: (context, toggle) => IconAction(label: 'Sort: ${sort.label}', icon: CupertinoIcons.arrow_up_arrow_down, onPressed: toggle),
     );
   }
 }
