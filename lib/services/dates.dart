@@ -6,6 +6,10 @@ DateTime addDays(DateTime d, int days) => d.isUtc
     ? DateTime.utc(d.year, d.month, d.day + days, d.hour, d.minute, d.second, d.millisecond)
     : DateTime(d.year, d.month, d.day + days, d.hour, d.minute, d.second, d.millisecond);
 
+/// Whole calendar days from [from] to [to]. Subtracting local times is off by a day across a DST change.
+int daysBetween(DateTime from, DateTime to) =>
+    DateTime.utc(to.year, to.month, to.day).difference(DateTime.utc(from.year, from.month, from.day)).inDays;
+
 /// Monday-first week start.
 DateTime startOfWeek(DateTime d) {
   final day = startOfDay(d);

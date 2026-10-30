@@ -13,18 +13,27 @@ class ReviewHeatmap extends StatelessWidget {
   final DateTime today;
 
   static const _levels = 4;
-  static const _cell = 14.0;
   static const _gap = 3.0;
-  static const _stride = _cell + _gap;
   static const _labelWidth = 30.0;
   static const _monthHeight = 12.0;
   static const _weekdayLabels = ['Mon', '', 'Wed', '', 'Fri', '', ''];
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) => _grid(context, (constraints.maxWidth - _labelWidth) / _columns));
+  }
+
+  int get _columns {
+    final firstDay = addDays(startOfDay(today), -(StatsCalculator.heatmapDays - 1));
+    return daysBetween(startOfWeek(firstDay), startOfWeek(today)) ~/ 7 + 1;
+  }
+
+  /// [stride] is the width and height of one cell including its gap, sized so the columns fill the row.
+  Widget _grid(BuildContext context, double stride) {
+    final cell = stride - _gap;
     final firstDay = addDays(startOfDay(today), -(StatsCalculator.heatmapDays - 1));
     final origin = startOfWeek(firstDay);
-    final columns = (startOfWeek(today).difference(origin).inDays ~/ 7) + 1;
+    final columns = _columns;
     final maxCount = counts.values.fold(1, (a, b) => a > b ? a : b);
     final activeDays = counts.values.where((c) => c > 0).length;
     final totalReviews = counts.values.fold(0, (a, b) => a + b);
@@ -50,13 +59,13 @@ class ReviewHeatmap extends StatelessWidget {
       child: Row(children: [
         for (var column = 0; column < columns; column++)
           SizedBox(
-            width: _stride,
+            width: stride,
             child: showsMonth(column)
                 ? OverflowBox(
-                    alignment: Alignment.centerLeft,
-                    maxWidth: 40,
-                    child: Text(monthAbbreviation(columnDate(column).month), style: small),
-                  )
+              alignment: Alignment.centerLeft,
+              maxWidth: 40,
+              child: Text(monthAbbreviation(columnDate(column).month), style: small),
+            )
                 : null,
           ),
       ]),
@@ -66,14 +75,14 @@ class ReviewHeatmap extends StatelessWidget {
       for (var column = 0; column < columns; column++)
         Column(children: [
           for (var row = 0; row < 7; row++)
-            _cellAt(addDays(origin, column * 7 + row), firstDay, colorFor),
+            _cellAt(addDays(origin, column * 7 + row), firstDay, cell, colorFor),
         ]),
     ]);
 
     final weekdayLabels = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const SizedBox(height: _monthHeight),
       for (final label in _weekdayLabels)
-        SizedBox(width: _labelWidth, height: _stride, child: Align(alignment: Alignment.centerLeft, child: Text(label, style: small))),
+        SizedBox(width: _labelWidth, height: stride, child: Align(alignment: Alignment.centerLeft, child: Text(label, style: small))),
     ]);
 
     return Column(
@@ -86,13 +95,7 @@ class ReviewHeatmap extends StatelessWidget {
           excludeSemantics: true,
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             weekdayLabels,
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                reverse: true,
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [monthRow, cells]),
-              ),
-            ),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [monthRow, cells])),
           ]),
         ),
         ExcludeSemantics(
@@ -118,11 +121,11 @@ class ReviewHeatmap extends StatelessWidget {
     );
   }
 
-  Widget _cellAt(DateTime day, DateTime firstDay, Color Function(int) colorFor) {
+  Widget _cellAt(DateTime day, DateTime firstDay, double size, Color Function(int) colorFor) {
     final inRange = !day.isBefore(firstDay) && !day.isAfter(startOfDay(today));
     return Container(
-      width: _cell,
-      height: _cell,
+      width: size,
+      height: size,
       margin: const EdgeInsets.all(_gap / 2),
       decoration: BoxDecoration(
         color: inRange ? colorFor(counts[day] ?? 0) : const Color(0x00000000),

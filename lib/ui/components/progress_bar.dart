@@ -17,6 +17,7 @@ class ProgressBar extends StatelessWidget {
       borderRadius: BorderRadius.circular(height / 2),
       child: SizedBox(
         height: height,
+        width: double.infinity,
         child: ColoredBox(
           color: context.chipBackground,
           child: FractionallySizedBox(
