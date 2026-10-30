@@ -2,6 +2,8 @@
 
 Flutter port of the iOS app. Look up Chinese text by typing, pasting or speaking, tap a word for pinyin, meanings and a per-character breakdown, save it, and review it with a spaced repetition quiz.
 
+See [FEATURES.md](FEATURES.md) for the full feature list, planned work and ideas.
+
 Targets: Android first. iOS, web and desktop share the same code, with the platform notes below.
 
 ## What was ported
