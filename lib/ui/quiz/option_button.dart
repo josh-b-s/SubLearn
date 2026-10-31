@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import '../components/pressable.dart';
-import '../theme/app_colors.dart';
+import '../theme/wind_classes.dart';
 
 enum OptionState {
   idle,
@@ -48,16 +49,33 @@ class OptionButton extends StatelessWidget {
   final bool isLocked;
   final VoidCallback onTap;
 
+  static const _idle = 'bg-white dark:bg-night-900 border border-night-950/10 dark:border-night-50/15';
+  static const _selected = 'bg-brand-500/15 dark:bg-brand-400/20 border-2 border-brand-500 dark:border-brand-400';
+  static const _correct = 'bg-green-600/10 dark:bg-green-400/15 border-2 border-green-600 dark:border-green-400';
+  static const _wrong = 'bg-red-600/10 dark:bg-red-400/15 border-2 border-red-600 dark:border-red-400';
+
   @override
   Widget build(BuildContext context) {
-    final green = context.resolve(CupertinoColors.systemGreen);
-    final red = context.resolve(CupertinoColors.systemRed);
-    final label = context.resolve(CupertinoColors.label);
-    final (border, fill, icon, textColor) = switch (state) {
-      OptionState.idle => (context.hairline, context.cardBackground, null, label),
-      OptionState.selected => (context.accent, context.accent.withValues(alpha: 0.15), CupertinoIcons.checkmark_circle_fill, label),
-      OptionState.correct => (green, green.withValues(alpha: 0.12), CupertinoIcons.checkmark_circle_fill, context.successText),
-      OptionState.wrong => (red, red.withValues(alpha: 0.12), CupertinoIcons.xmark_circle_fill, context.errorText),
+    final (surface, icon, textClass, accentClass) = switch (state) {
+      OptionState.idle => (_idle, null, inkTextClass, mutedTextClass),
+      OptionState.selected => (
+          _selected,
+          CupertinoIcons.checkmark_circle_fill,
+          inkTextClass,
+          'text-brand-500 dark:text-brand-400',
+        ),
+      OptionState.correct => (
+          _correct,
+          CupertinoIcons.checkmark_circle_fill,
+          'text-green-700 dark:text-green-400',
+          'text-green-700 dark:text-green-400',
+        ),
+      OptionState.wrong => (
+          _wrong,
+          CupertinoIcons.xmark_circle_fill,
+          'text-red-700 dark:text-red-400',
+          'text-red-700 dark:text-red-400',
+        ),
     };
     final stateLabel = switch (state) {
       OptionState.idle => '',
@@ -66,11 +84,6 @@ class OptionButton extends StatelessWidget {
       OptionState.wrong => 'Wrong answer',
     };
     final resolved = state == OptionState.correct || state == OptionState.wrong;
-    final letterColor = switch (state) {
-      OptionState.idle => context.mutedText,
-      OptionState.selected => border,
-      _ => textColor,
-    };
     return Semantics(
       button: true,
       selected: state != OptionState.idle,
@@ -83,32 +96,20 @@ class OptionButton extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: isLocked ? null : _choose,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-            decoration: BoxDecoration(
-              color: fill,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: border, width: state == OptionState.idle ? 1 : 2),
-            ),
-            child: Row(
-              children: [
-                if (letter != null) ...[
-                  Text(letter!, style: TextStyle(fontWeight: FontWeight.bold, color: letterColor)),
-                  const SizedBox(width: 12),
+          child: WDiv(
+            className: 'flex flex-row items-center gap-3 w-full p-[14px] rounded-control $surface',
+            children: [
+              if (letter != null) WText(letter!, className: 'font-bold $accentClass'),
+              WDiv(
+                className: 'flex-1 flex flex-col items-start',
+                children: [
+                  WText(text, className: 'text-[${fontSize.round()}px] $textClass'),
+                  if (subtitle != null && subtitle!.isNotEmpty)
+                    WText(subtitle!, className: resolved ? textClass : mutedTextClass),
                 ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(text, style: TextStyle(fontSize: fontSize, color: textColor)),
-                      if (subtitle != null && subtitle!.isNotEmpty)
-                        Text(subtitle!, style: TextStyle(color: resolved ? textColor : context.mutedText)),
-                    ],
-                  ),
-                ),
-                if (icon != null) Icon(icon, color: border),
-              ],
-            ),
+              ),
+              if (icon != null) WIcon(icon, className: 'text-[24px] $accentClass'),
+            ],
           ),
         ),
       ),

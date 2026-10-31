@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/wind_classes.dart';
 
 /// Flame and day count. Grey when there is no streak.
 class StreakBadge extends StatelessWidget {
@@ -11,26 +12,19 @@ class StreakBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = days > 0;
-    final color = active ? CupertinoColors.black : context.mutedText;
+    final surface = active ? 'bg-gold-400 dark:bg-gold-300' : 'bg-night-100 dark:bg-night-800';
+    final text = active ? 'text-night-950' : mutedTextClass;
     final label = '$days day${days == 1 ? '' : 's'}';
     return Semantics(
       label: 'Streak',
       value: label,
       excludeSemantics: true,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: active ? context.resolve(CupertinoColors.systemOrange) : context.chipBackground,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 6,
-          children: [
-            Icon(CupertinoIcons.flame_fill, size: 18, color: color),
-            Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: color)),
-          ],
-        ),
+      child: WDiv(
+        className: 'flex flex-row items-center gap-[6px] px-3 py-[6px] rounded-full $surface',
+        children: [
+          WIcon(CupertinoIcons.flame_fill, className: 'text-lg $text'),
+          WText(label, className: 'font-bold $text'),
+        ],
       ),
     );
   }

@@ -6,6 +6,10 @@ See [FEATURES.md](FEATURES.md) for the full feature list, planned work and ideas
 
 Targets: Android first. iOS, web and desktop share the same code, with the platform notes below.
 
+## Styling
+
+Widgets are styled with [Wind](https://github.com/fluttersdk/wind) class strings (`WDiv`, `WText`, `WIcon`, `WButton`). Colour tokens (`brand`, `night`, `gold`) and dark mode live in `lib/ui/theme/wind_theme_data.dart`. Class strings used in several places are in `lib/ui/theme/wind_classes.dart`. Text fields, switches, sliders, nav bars, charts and the Android overlay stay on Cupertino or plain Flutter widgets.
+
 ## What was ported
 
 - Translate: type, paste or speak. Word cards, character breakdown, save and remove, hide learned.

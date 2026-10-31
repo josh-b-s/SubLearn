@@ -17,7 +17,7 @@ class SearchField extends StatelessWidget {
         autofocus: autofocus,
         onChanged: onChanged,
         autocorrect: false,
-        borderRadius: const BorderRadius.all(cardRadius),
+        borderRadius: const BorderRadius.all(controlRadius),
         padding: const EdgeInsets.all(10),
         placeholder: 'Search word, pinyin or meaning…',
       ),

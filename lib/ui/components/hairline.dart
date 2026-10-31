@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/wind_classes.dart';
 
 /// One-pixel separator line, the way iOS draws list dividers.
 class Hairline extends StatelessWidget {
@@ -13,11 +14,7 @@ class Hairline extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsetsDirectional.only(start: indent),
-      child: SizedBox(
-        height: 1 / MediaQuery.devicePixelRatioOf(context),
-        width: double.infinity,
-        child: ColoredBox(color: context.hairline),
-      ),
+      child: const WDiv(className: 'w-full h-px $hairlineClass'),
     );
   }
 }

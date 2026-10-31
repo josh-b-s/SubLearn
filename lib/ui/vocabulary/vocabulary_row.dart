@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import '../../models/mastery_status.dart';
 import '../../models/saved_word.dart';
 import '../../services/vocabulary/saved_word_mastery.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text.dart';
-import 'mastery_status_color.dart';
+import '../components/pinyin.dart';
+import '../theme/wind_classes.dart';
 
 /// One saved word: mastery badge, word, pinyin, meanings.
 class VocabularyRow extends StatelessWidget {
@@ -24,34 +24,30 @@ class VocabularyRow extends StatelessWidget {
       value: status == MasteryStatus.mastered ? status.label : '${status.label}, level ${word.masteryLabel}',
       selected: picked == true,
       hint: picked == null ? 'Opens the word details' : 'Selects this word for deletion',
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Row(
-          children: [
-            if (picked != null) ...[
-              Icon(picked ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.circle, color: picked ? context.accent : context.mutedText),
-              const SizedBox(width: 12),
-            ],
-            _Badge(status: status, label: word.masteryLabel),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      child: WDiv(
+        className: 'flex flex-row items-center gap-3 px-4 py-[10px]',
+        children: [
+          if (picked != null)
+            WIcon(
+              picked ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.circle,
+              className: 'text-2xl ${picked ? 'text-brand-500 dark:text-brand-400' : mutedTextClass}',
+            ),
+          _Badge(status: status, label: word.masteryLabel),
+          WDiv(
+            className: 'flex-1 flex flex-col items-start',
+            children: [
+              WDiv(
+                className: 'flex flex-row items-baseline gap-2',
                 children: [
-                  Text.rich(TextSpan(children: [
-                    TextSpan(text: word.word, style: context.body.copyWith(fontWeight: FontWeight.w600)),
-                    TextSpan(text: '  ${word.pinyin}', style: context.subhead.copyWith(color: context.mutedText)),
-                  ])),
-                  Text(
-                    word.meanings.isEmpty ? 'No definition' : word.meanings.join(' · '),
-                    style: context.subhead.copyWith(color: context.mutedText),
-                  ),
+                  WText(word.word, className: 'text-[20px] font-semibold $inkTextClass'),
+                  Pinyin(word.pinyin, style: const TextStyle(fontSize: 15)),
                 ],
               ),
-            ),
-            if (picked == null) Icon(CupertinoIcons.chevron_forward, size: 16, color: context.resolve(CupertinoColors.tertiaryLabel)),
-          ],
-        ),
+              WText(word.meanings.isEmpty ? 'No definition' : word.meanings.join(' · '), className: 'text-[15px] $mutedTextClass'),
+            ],
+          ),
+          if (picked == null) const WIcon(CupertinoIcons.chevron_forward, className: 'text-base text-night-400'),
+        ],
       ),
     );
   }
@@ -66,16 +62,16 @@ class _Badge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 34,
-      height: 34,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: context.resolve(status.color), width: 2)),
+    final ring = switch (status) {
+      MasteryStatus.newWord => 'border-night-400',
+      MasteryStatus.learning => 'border-orange-500',
+      MasteryStatus.mastered => 'border-green-600 dark:border-green-400',
+    };
+    return WDiv(
+      className: 'flex items-center justify-center size-[34px] rounded-full border-2 $ring',
       child: status == MasteryStatus.mastered
-          ? Icon(CupertinoIcons.checkmark, size: 16, color: context.successText)
-          : FittedBox(
-              child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-            ),
+          ? const WIcon(CupertinoIcons.checkmark, className: 'text-base text-green-700 dark:text-green-400')
+          : WText(label, className: 'text-xs font-bold $inkTextClass'),
     );
   }
 }

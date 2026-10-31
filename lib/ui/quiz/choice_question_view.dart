@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import '../../models/quiz/choice_question.dart';
 import '../../state/core_providers.dart';
 import '../components/speak_button.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text.dart';
+import '../theme/wind_classes.dart';
 import 'auto_speak.dart';
 import 'option_button.dart';
 import 'quiz_prompt_card.dart';
@@ -32,20 +32,15 @@ class ChoiceQuestionView extends ConsumerWidget {
       spacing: 20,
       children: [
         QuizPromptCard(children: [
-          Text(
+          WText(
             question.prompt,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: chinese ? 48 : 28, fontWeight: FontWeight.bold),
+            className: 'text-[${chinese ? 48 : 28}px] font-bold text-center $inkTextClass',
           ),
-          if (question.hint.isNotEmpty)
-            Text(question.hint, style: context.body.copyWith(color: context.mutedText)),
+          if (question.hint.isNotEmpty) WText(question.hint, className: 'text-[17px] $mutedTextClass'),
           if (chinese) AutoSpeak(word: question.prompt, child: SpeakButton(word: question.prompt)),
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              chinese ? 'What does this mean?' : 'Which word means this?',
-              style: context.body,
-            ),
+          WDiv(
+            className: 'pt-1',
+            child: WText(chinese ? 'What does this mean?' : 'Which word means this?', className: 'text-[17px] $inkTextClass'),
           ),
         ]),
         Column(

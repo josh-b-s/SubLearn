@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import '../../models/word_token.dart';
 import '../components/pressable.dart';
-import '../theme/app_colors.dart';
+import '../components/pinyin.dart';
+import '../theme/wind_classes.dart';
 
 /// One word of the cloze sentence. Pinyin and meaning follow the word's mastery level, and a tap shows the hidden ones.
 class ClozeWordCard extends StatelessWidget {
@@ -26,25 +28,15 @@ class ClozeWordCard extends StatelessWidget {
       child: Pressable(
         child: GestureDetector(
           onTap: onTap,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: context.resolve(CupertinoColors.tertiarySystemFill),
-              borderRadius: BorderRadius.circular(cornerRadius),
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 150),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(token.text, style: const TextStyle(fontSize: wordSize, fontWeight: FontWeight.w600)),
-                    if (pinyin != null) Text(pinyin, style: TextStyle(fontSize: 13, color: context.accent)),
-                    if (meaning != null)
-                      Text(meaning, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: context.mutedText)),
-                  ],
-                ),
-              ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 150),
+            child: WDiv(
+              className: 'flex flex-col items-center px-[10px] py-[6px] rounded-control bg-night-950/5 dark:bg-night-50/10',
+              children: [
+                WText(token.text, className: 'text-[26px] font-semibold $inkTextClass'),
+                if (pinyin != null) Pinyin(pinyin, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                if (meaning != null) WText(meaning, className: 'text-xs truncate $mutedTextClass'),
+              ],
             ),
           ),
         ),

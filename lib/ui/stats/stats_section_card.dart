@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
-import '../theme/app_colors.dart';
-import '../theme/app_shape.dart';
-import '../theme/app_text.dart';
+import '../theme/wind_classes.dart';
 
 /// Titled card used for each section of the stats screen.
 class StatsSectionCard extends StatelessWidget {
@@ -13,21 +12,15 @@ class StatsSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: context.cardBackground, borderRadius: BorderRadius.all(cardRadius)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 12,
-        children: [
-          Semantics(
-            header: true,
-            child: Text(title, style: context.subhead.copyWith(fontWeight: FontWeight.w600)),
-          ),
-          child,
-        ],
-      ),
+    return WDiv(
+      className: 'flex flex-col items-start gap-3 w-full p-5 $cardClass',
+      children: [
+        Semantics(
+          header: true,
+          child: WText(title, className: 'text-[15px] font-semibold $inkTextClass'),
+        ),
+        child,
+      ],
     );
   }
 }

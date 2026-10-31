@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import '../../models/quiz_record.dart';
 import '../components/pressable.dart';
 import '../components/progress_ring.dart';
 import '../format_date.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_shape.dart';
-import '../theme/app_text.dart';
+import '../theme/wind_classes.dart';
 
 /// One past quiz: score ring, how it went, and when.
 class QuizHistoryCard extends StatelessWidget {
@@ -31,31 +30,22 @@ class QuizHistoryCard extends StatelessWidget {
       child: Pressable(
         child: GestureDetector(
           onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(color: context.cardBackground, borderRadius: const BorderRadius.all(cardRadius)),
-            child: Row(
-              spacing: 16,
-              children: [
-                ProgressRing(
-                  value: fraction,
-                  child: Text(
-                    '${(fraction * 100).round()}%',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: context.accent),
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(summary),
-                      Text(when, style: context.footnote.copyWith(color: context.mutedText)),
-                    ],
-                  ),
-                ),
-                Icon(CupertinoIcons.chevron_forward, size: 16, color: context.resolve(CupertinoColors.tertiaryLabel)),
-              ],
-            ),
+          child: WDiv(
+            className: 'flex flex-row items-center gap-4 w-full p-5 $cardClass',
+            children: [
+              ProgressRing(
+                value: fraction,
+                child: WText('${(fraction * 100).round()}%', className: 'text-xs font-bold text-brand-500 dark:text-brand-400'),
+              ),
+              WDiv(
+                className: 'flex-1 flex flex-col items-start',
+                children: [
+                  WText(summary, className: inkTextClass),
+                  WText(when, className: 'text-[13px] $mutedTextClass'),
+                ],
+              ),
+              const WIcon(CupertinoIcons.chevron_forward, className: 'text-base text-night-400'),
+            ],
           ),
         ),
       ),

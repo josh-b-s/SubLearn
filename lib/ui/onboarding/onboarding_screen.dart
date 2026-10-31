@@ -63,13 +63,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 for (var i = 0; i < _pages.length; i++)
-                  Container(
-                    width: 8,
+                  AnimatedContainer(
+                    duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 200),
+                    width: i == _index ? 24 : 8,
                     height: 8,
                     margin: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: i == _index ? context.accent : context.resolve(CupertinoColors.systemGrey4),
+                      borderRadius: BorderRadius.circular(4),
+                      color: i == _index ? context.accent : context.chipBackground,
                     ),
                   ),
               ],

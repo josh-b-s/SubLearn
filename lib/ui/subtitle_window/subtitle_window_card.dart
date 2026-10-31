@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/word_token.dart';
+import '../components/pinyin.dart';
 
 /// One word in the floating window. Colours are fixed because the window is drawn outside the app's theme.
 class SubtitleWindowCard extends StatelessWidget {
@@ -9,7 +10,6 @@ class SubtitleWindowCard extends StatelessWidget {
   final WordToken token;
 
   static const _ink = Color(0xFF1A1A1A);
-  static const _blue = Color(0xFF007AFF);
   static const _grey = Color(0xFF8E8E93);
 
   @override
@@ -25,7 +25,7 @@ class SubtitleWindowCard extends StatelessWidget {
         children: [
           Text(token.text, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: _ink)),
           if (token.pinyin.isNotEmpty && !token.hidePinyin)
-            Text(token.pinyin, style: const TextStyle(fontSize: 13, color: _blue)),
+            Pinyin(token.pinyin, brightness: Brightness.light, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
           if (token.meanings.isNotEmpty && !token.hideMeaning)
             Text(
               token.meanings.take(2).join(' · '),

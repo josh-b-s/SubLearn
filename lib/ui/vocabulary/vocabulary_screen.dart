@@ -22,6 +22,7 @@ import '../components/tap_row.dart';
 import '../components/word_detail_sheet.dart';
 import '../dictionary/dictionary_screen.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_shape.dart';
 import 'add_known_word_screen.dart';
 import 'mastery_filter_bar.dart';
 import 'vocabulary_row.dart';
@@ -122,7 +123,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
               child: CupertinoSearchTextField(
                 placeholder: 'Search vocabulary…',
                 onChanged: (v) => setState(() => _query = v),
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: const BorderRadius.all(controlRadius),
                 padding: const EdgeInsets.all(10),
               ),
             ),
@@ -163,7 +164,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
                   itemCount: filtered.length,
                   separatorBuilder: (_, __) => ColoredBox(color: context.cardBackground, child: const Hairline(indent: 16)),
                   itemBuilder: (context, i) => ClipRRect(
-                    borderRadius: _cornersAt(i, filtered.length),
+                    borderRadius: cornersAt(i, filtered.length),
                     child: _row(filtered[i]),
                   ),
                 ),
@@ -173,13 +174,6 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
       ],
     );
   }
-
-  static const _listRadius = Radius.circular(30);
-
-  BorderRadius _cornersAt(int index, int count) => BorderRadius.vertical(
-    top: index == 0 ? _listRadius : Radius.zero,
-    bottom: index == count - 1 ? _listRadius : Radius.zero,
-  );
 
   Widget _row(SavedWord word) {
     final tile = TapRow(

@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import '../../models/quiz/quiz_feedback.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text.dart';
+import '../theme/wind_classes.dart';
 
 /// Result of the answer just given, shown above the Next button.
 class QuizFeedbackBanner extends StatelessWidget {
@@ -12,31 +12,25 @@ class QuizFeedbackBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tint = context.resolve(feedback.correct ? CupertinoColors.systemGreen : CupertinoColors.systemRed);
-    final textTint = feedback.correct ? context.successText : context.errorText;
-    final message = feedback.correct ? 'Correct! ${feedback.explanation}' : 'Not quite. Answer: ${feedback.answerText}';
-    final small = context.footnote;
+    final correct = feedback.correct;
+    final surface = correct ? 'bg-green-600/10 dark:bg-green-400/15' : 'bg-red-600/10 dark:bg-red-400/15';
+    final text = correct ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400';
+    final message = correct ? 'Correct! ${feedback.explanation}' : 'Not quite. Answer: ${feedback.answerText}';
     return Semantics(
       liveRegion: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 6,
+      child: WDiv(
+        className: 'flex flex-col items-start gap-[6px]',
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(color: tint.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(14)),
-            child: Row(
-              spacing: 8,
-              children: [
-                Icon(feedback.correct ? CupertinoIcons.checkmark : CupertinoIcons.xmark, color: textTint, size: 18),
-                Expanded(child: Text(message, style: TextStyle(color: textTint, fontWeight: FontWeight.w600))),
-              ],
-            ),
+          WDiv(
+            className: 'flex flex-row items-center gap-2 w-full p-[14px] rounded-control $surface',
+            children: [
+              WIcon(correct ? CupertinoIcons.checkmark : CupertinoIcons.xmark, className: 'text-lg $text'),
+              WDiv(className: 'flex-1', child: WText(message, className: 'font-semibold $text')),
+            ],
           ),
-          if (!feedback.correct) Text("You'll see this one again at the end.", style: small.copyWith(color: context.mutedText)),
+          if (!correct) const WText("You'll see this one again at the end.", className: 'text-[13px] $mutedTextClass'),
           if (feedback.levelNote != null)
-            Text(feedback.levelNote!, style: small.copyWith(color: context.accent, fontWeight: FontWeight.w500)),
+            WText(feedback.levelNote!, className: 'text-[13px] font-medium text-brand-500 dark:text-brand-400'),
         ],
       ),
     );

@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
-
-import '../theme/app_colors.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 enum AppButtonStyle { filled, destructive, tinted }
 
-/// iOS button with a rounded fill. A null [onPressed] greys it out.
+/// Rounded button. A null [onPressed] greys it out.
 class AppButton extends StatelessWidget {
   const AppButton({
     super.key,
@@ -18,7 +17,7 @@ class AppButton extends StatelessWidget {
 
   final String label;
   final VoidCallback? onPressed;
-  final Widget? icon;
+  final IconData? icon;
   final AppButtonStyle style;
 
   /// Stretches to the full width of the parent.
@@ -27,37 +26,30 @@ class AppButton extends StatelessWidget {
   /// Shows a spinner in place of the icon.
   final bool busy;
 
+  static const _disabled = 'disabled:bg-night-100 dark:disabled:bg-night-800';
+  static const _disabledText = 'disabled:text-night-400';
+
   @override
   Widget build(BuildContext context) {
-    final base = style == AppButtonStyle.destructive ? context.destructive : context.accent;
-    final tinted = style == AppButtonStyle.tinted;
-    final enabled = onPressed != null;
-    final foreground = !enabled
-        ? context.resolve(CupertinoColors.tertiaryLabel)
-        : (tinted ? base : CupertinoColors.white);
-
-    final button = CupertinoButton(
-      color: tinted ? base.withValues(alpha: 0.15) : base,
-      disabledColor: context.resolve(CupertinoColors.tertiarySystemFill),
-      borderRadius: BorderRadius.circular(14),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      onPressed: onPressed,
-      child: DefaultTextStyle.merge(
-        style: TextStyle(color: foreground, fontWeight: FontWeight.w600),
-        child: IconTheme.merge(
-          data: IconThemeData(color: foreground, size: 20),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 8,
-            children: [
-              if (busy) CupertinoActivityIndicator(color: foreground) else if (icon != null) icon!,
-              Flexible(child: Text(label, textAlign: TextAlign.center)),
-            ],
-          ),
-        ),
+    final (surface, text) = switch (style) {
+      AppButtonStyle.filled => ('bg-brand-500 dark:bg-brand-400', 'text-white dark:text-night-950'),
+      AppButtonStyle.destructive => ('bg-red-600 dark:bg-red-500', 'text-white'),
+      AppButtonStyle.tinted => ('bg-brand-500/15 dark:bg-brand-400/20', 'text-brand-500 dark:text-brand-400'),
+    };
+    final textClass = '$text $_disabledText';
+    return WButton(
+      onTap: onPressed,
+      disabled: onPressed == null,
+      semanticLabel: label,
+      className:
+          'flex flex-row items-center justify-center gap-2 px-5 py-[14px] rounded-control ${expand ? 'w-full' : ''} $surface $_disabled',
+      child: WDiv(
+        className: 'flex flex-row items-center justify-center gap-2',
+        children: [
+          if (busy) const CupertinoActivityIndicator() else if (icon != null) WIcon(icon!, className: 'text-xl $textClass'),
+          WText(label, className: 'text-[17px] font-semibold text-center $textClass'),
+        ],
       ),
     );
-    return expand ? SizedBox(width: double.infinity, child: button) : button;
   }
 }

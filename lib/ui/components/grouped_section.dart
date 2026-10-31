@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
-import '../theme/app_colors.dart';
-import '../theme/app_shape.dart';
-import '../theme/app_text.dart';
+import '../theme/wind_classes.dart';
 import 'hairline.dart';
 
-/// Inset grouped list: optional small-caps title, rounded card of rows, optional footnote.
+/// Inset grouped list: optional title, rounded card of rows, optional footnote.
 class GroupedSection extends StatelessWidget {
   const GroupedSection({super.key, this.title, required this.children, this.footer, this.dividerIndent = 24});
 
@@ -18,40 +17,29 @@ class GroupedSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (title != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(40, 0, 32, 6),
-              child: Text(title!.toUpperCase(), style: context.footnote.copyWith(color: context.mutedText)),
-            ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(cardRadius),
-              child: ColoredBox(
-                color: context.cardBackground,
-                child: Column(
-                  children: [
-                    for (var i = 0; i < children.length; i++) ...[
-                      if (i > 0) Hairline(indent: dividerIndent),
-                      children[i],
-                    ],
-                  ],
-                ),
-              ),
-            ),
+    return WDiv(
+      className: 'flex flex-col items-stretch pt-5',
+      children: [
+        if (title != null)
+          WDiv(
+            className: 'pl-10 pr-8 pb-[6px]',
+            child: WText(title!, className: 'text-[13px] font-semibold $mutedTextClass'),
           ),
-          if (footer != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(40, 6, 32, 0),
-              child: Text(footer!, style: context.footnote.copyWith(color: context.mutedText)),
-            ),
-        ],
-      ),
+        WDiv(
+          className: 'mx-4 overflow-hidden $cardClass',
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) Hairline(indent: dividerIndent),
+              children[i],
+            ],
+          ],
+        ),
+        if (footer != null)
+          WDiv(
+            className: 'pl-10 pr-8 pt-[6px]',
+            child: WText(footer!, className: 'text-[13px] $mutedTextClass'),
+          ),
+      ],
     );
   }
 }

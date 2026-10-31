@@ -117,7 +117,7 @@ class _Content extends ConsumerWidget {
             AppButton(
               label: 'Show PiP',
               style: AppButtonStyle.tinted,
-              icon: const Icon(CupertinoIcons.rectangle_on_rectangle),
+              icon: CupertinoIcons.rectangle_on_rectangle,
               onPressed: controller.presentPip,
             ),
           ],

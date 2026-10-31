@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import '../../models/word_token.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text.dart';
+import '../theme/wind_classes.dart';
 import 'pressable.dart';
+import 'pinyin.dart';
 
 class WordCard extends StatelessWidget {
   const WordCard({super.key, required this.token, required this.isSaved, required this.onTap});
@@ -12,9 +13,11 @@ class WordCard extends StatelessWidget {
   final bool isSaved;
   final VoidCallback onTap;
 
+  static const _plain = 'bg-white dark:bg-night-900 border border-night-950/10 dark:border-night-50/15';
+  static const _saved = 'bg-gold-400/15 border-2 border-gold-400 dark:border-gold-300';
+
   @override
   Widget build(BuildContext context) {
-    final accent = context.accent;
     return Semantics(
       button: true,
       value: isSaved ? 'Saved' : 'Not saved',
@@ -24,41 +27,28 @@ class WordCard extends StatelessWidget {
           onTap: onTap,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 240),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: context.cardBackground,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: isSaved ? accent : const Color(0x00000000), width: 2),
-              ),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(token.text, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-                        if (token.pinyin.isNotEmpty && !token.hidePinyin)
-                          Text(token.pinyin, style: context.callout.copyWith(color: accent)),
-                        if (!token.hideMeaning)
-                          Text(
-                            token.meanings.isEmpty ? 'No definition' : token.meanings.join(' · '),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.body.copyWith(color: context.mutedText),
-                          ),
-                      ],
-                    ),
+            child: Stack(
+              children: [
+                WDiv(
+                  className: 'flex flex-col items-start p-4 rounded-tile ${isSaved ? _saved : _plain}',
+                  children: [
+                    WText(token.text, className: 'text-[34px] font-semibold leading-tight $inkTextClass'),
+                    if (token.pinyin.isNotEmpty && !token.hidePinyin)
+                      Pinyin(token.pinyin, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    if (!token.hideMeaning)
+                      WText(
+                        token.meanings.isEmpty ? 'No definition' : token.meanings.join(' · '),
+                        className: 'text-[17px] line-clamp-2 $mutedTextClass',
+                      ),
+                  ],
+                ),
+                if (isSaved)
+                  const Positioned(
+                    top: 10,
+                    right: 10,
+                    child: WIcon(CupertinoIcons.bookmark_fill, className: 'text-[14px] text-gold-700 dark:text-gold-300'),
                   ),
-                  if (isSaved)
-                    Positioned(
-                      top: 10,
-                      right: 10,
-                      child: Icon(CupertinoIcons.bookmark_fill, size: 14, color: accent),
-                    ),
-                ],
-              ),
+              ],
             ),
           ),
         ),

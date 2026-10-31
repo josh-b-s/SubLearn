@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
+
 import '../../services/learning/mastery.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text.dart';
+import '../theme/wind_classes.dart';
 import 'section_label.dart';
 
 /// Manual mastery control. The slider moves in half levels, so 2.5 means level 2 with one pass done.
@@ -38,8 +39,8 @@ class _MasteryPickerState extends State<MasteryPicker> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SectionLabel('MASTERY'),
-            ExcludeSemantics(child: Text(summary, style: context.headline)),
+            const SectionLabel('Mastery'),
+            ExcludeSemantics(child: WText(summary, className: 'text-[17px] font-semibold $inkTextClass')),
           ],
         ),
         Semantics(
@@ -59,7 +60,7 @@ class _MasteryPickerState extends State<MasteryPicker> {
           ),
         ),
         ExcludeSemantics(
-          child: Text(_caption, style: context.footnote.copyWith(color: context.mutedText)),
+          child: WText(_caption, className: 'text-[13px] $mutedTextClass'),
         ),
       ],
     );

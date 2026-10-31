@@ -6,7 +6,7 @@ import '../../state/clock_provider.dart';
 import '../../state/stats_provider.dart';
 import '../components/pushed_page.dart';
 import '../components/segmented_picker.dart';
-import '../theme/app_colors.dart';
+import '../theme/wind_classes.dart';
 import '../theme/app_text.dart';
 import 'review_heatmap.dart';
 import 'stat_card.dart';
@@ -63,7 +63,7 @@ class StatsScreen extends ConsumerWidget {
                 value: accuracy == null ? 'n/a' : '${(accuracy * 100).round()}%',
                 label: 'Accuracy',
                 detail: stats.reviews == 0 ? null : '${stats.correct} of ${stats.reviews} correct',
-                accent: _accuracyColor(context, accuracy),
+                valueClass: _accuracyClass(accuracy),
               ),
             ],
           ),
@@ -77,11 +77,11 @@ class StatsScreen extends ConsumerWidget {
     );
   }
 
-  Color? _accuracyColor(BuildContext context, double? accuracy) {
-    if (accuracy == null) return null;
-    if (accuracy >= 0.85) return context.successText;
-    if (accuracy >= 0.70) return context.warningText;
-    return context.errorText;
+  String _accuracyClass(double? accuracy) {
+    if (accuracy == null) return inkTextClass;
+    if (accuracy >= 0.85) return 'text-green-700 dark:text-green-400';
+    if (accuracy >= 0.70) return 'text-orange-700 dark:text-orange-400';
+    return 'text-red-700 dark:text-red-400';
   }
 }
 

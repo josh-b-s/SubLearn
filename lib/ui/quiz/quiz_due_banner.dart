@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
-
-import '../theme/app_colors.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 /// Top card on the quiz home: how many words are due for review.
 class QuizDueBanner extends StatelessWidget {
@@ -11,38 +10,27 @@ class QuizDueBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const onAccent = CupertinoColors.white;
-    final title = dueCount > 0 ? '$dueCount Word${dueCount == 1 ? '' : 's'} Due' : 'All caught up';
-    final subtitle = dueCount > 0
-        ? 'Ready for review today'
-        : '$activeCount word${activeCount == 1 ? '' : 's'} still being learned';
+    final due = dueCount > 0;
+    final title = due ? 'word${dueCount == 1 ? '' : 's'} due today' : 'All caught up';
+    final subtitle = due ? 'Ready for review' : '$activeCount word${activeCount == 1 ? '' : 's'} still being learned';
     return MergeSemantics(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: context.accent, borderRadius: BorderRadius.circular(22)),
-        child: Row(
-          spacing: 16,
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: onAccent.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const ExcludeSemantics(child: Icon(CupertinoIcons.calendar, size: 28, color: onAccent)),
+      child: WDiv(
+        className: 'flex flex-row items-center gap-4 w-full px-[22px] py-5 rounded-card bg-gradient-to-br from-brand-500 to-iris-500 dark:from-brand-500 dark:to-brand-600',
+        children: [
+          if (due)
+            WText('$dueCount', className: 'text-[56px] leading-none font-bold text-white')
+          else
+            const ExcludeSemantics(
+              child: WIcon(CupertinoIcons.checkmark_circle_fill, className: 'text-[44px] text-white'),
             ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: onAccent)),
-                  Text(subtitle, style: TextStyle(color: onAccent.withValues(alpha: 0.85))),
-                ],
-              ),
-            ),
-          ],
-        ),
+          WDiv(
+            className: 'flex-1 flex flex-col items-start',
+            children: [
+              WText(title, className: 'text-xl font-bold text-white'),
+              WText(subtitle, className: 'text-white/85'),
+            ],
+          ),
+        ],
       ),
     );
   }

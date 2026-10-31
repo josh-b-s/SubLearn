@@ -66,7 +66,7 @@ class ListeningBar extends StatelessWidget {
                       child: AppButton(
                         label: 'Stop Recording',
                         style: AppButtonStyle.destructive,
-                        icon: const _Pulse(child: Icon(CupertinoIcons.stop_fill)),
+                        icon: CupertinoIcons.stop_fill,
                         onPressed: onStop,
                       ),
                     ),

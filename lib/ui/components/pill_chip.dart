@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/wind_classes.dart';
 
 /// Capsule toggle used for filters. Reads as a selectable button to screen readers.
 class PillChip extends StatelessWidget {
@@ -12,9 +13,13 @@ class PillChip extends StatelessWidget {
   final String? hint;
   final IconData? icon;
 
+  static const _on = 'bg-brand-500 dark:bg-brand-400';
+  static const _onText = 'text-white dark:text-night-950';
+  static const _off = 'bg-night-100 dark:bg-night-800';
+
   @override
   Widget build(BuildContext context) {
-    final foreground = selected ? CupertinoColors.white : context.resolve(CupertinoColors.label);
+    final text = selected ? _onText : inkTextClass;
     return Semantics(
       button: true,
       selected: selected,
@@ -25,18 +30,12 @@ class PillChip extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 36),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            color: selected ? context.accent : context.chipBackground,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Row(mainAxisSize: MainAxisSize.min, spacing: 6, children: [
-            if (icon != null) Icon(icon, size: 16, color: foreground),
-            Text(label, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: foreground)),
-          ]),
+        child: WDiv(
+          className: 'flex flex-row items-center justify-center gap-[6px] min-h-[36px] px-[14px] rounded-full ${selected ? _on : _off}',
+          children: [
+            if (icon != null) WIcon(icon!, className: 'text-base $text'),
+            WText(label, className: 'text-[15px] font-medium $text'),
+          ],
         ),
       ),
     );

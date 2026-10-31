@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
-import '../theme/app_colors.dart';
-import '../theme/app_text.dart';
+import '../theme/wind_classes.dart';
 
-/// Small uppercase heading used above groups of content.
+/// Small heading used above groups of content.
 class SectionLabel extends StatelessWidget {
   const SectionLabel(this.text, {super.key});
 
@@ -13,7 +13,7 @@ class SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       header: true,
-      child: Text(text, style: context.footnote.copyWith(color: context.mutedText)),
+      child: WText(text, className: 'text-[13px] font-semibold $mutedTextClass'),
     );
   }
 }

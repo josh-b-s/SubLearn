@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import '../../models/word_token.dart';
 import '../../services/dictionary/dictionary_breakdown.dart';
@@ -7,8 +8,8 @@ import '../../services/vocabulary/saved_word_mastery.dart';
 import '../../state/dictionary_provider.dart';
 import '../../state/word_clip_provider.dart';
 import '../../state/words_provider.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
+import '../theme/wind_classes.dart';
 import 'alerts.dart';
 import 'app_button.dart';
 import 'app_sheet.dart';
@@ -19,6 +20,7 @@ import 'replay_clip_button.dart';
 import 'section_label.dart';
 import 'slow_speech_button.dart';
 import 'speak_button.dart';
+import 'pinyin.dart';
 
 Future<void> showWordDetailSheet(BuildContext context, WordToken token) {
   return showAppSheet<void>(context, builder: (_) => WordDetailSheet(token: token));
@@ -55,9 +57,9 @@ class WordDetailSheet extends ConsumerWidget {
                   width: double.infinity,
                   child: Column(
                     children: [
-                      Text(token.text, style: const TextStyle(fontSize: 52, fontWeight: FontWeight.bold)),
+                      WText(token.text, className: 'text-[56px] font-semibold $inkTextClass'),
                       if (token.pinyin.isNotEmpty)
-                        Text(token.pinyin, style: context.title2.copyWith(color: context.accent)),
+                        Pinyin(token.pinyin, style: context.title2.copyWith(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -79,15 +81,15 @@ class WordDetailSheet extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SectionLabel('MEANINGS'),
+                    const SectionLabel('Meanings'),
                     const SizedBox(height: 8),
                     if (token.meanings.isEmpty)
-                      Text('No definition', style: TextStyle(color: context.mutedText))
+                      const WText('No definition', className: mutedTextClass)
                     else
                       for (final (i, meaning) in token.meanings.indexed)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Text('${i + 1}. $meaning', style: context.body),
+                        WDiv(
+                          className: 'pb-1',
+                          child: WText('${i + 1}. $meaning', className: 'text-[17px] $inkTextClass'),
                         ),
                     if (glosses.isNotEmpty) ...[
                       const SizedBox(height: 20),

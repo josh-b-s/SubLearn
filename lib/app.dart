@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show DefaultMaterialLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import 'state/quiz_controller.dart';
 import 'state/reminder_sync.dart';
@@ -15,6 +16,7 @@ import 'ui/screen_share/screen_share_screen.dart';
 import 'ui/settings/settings_screen.dart';
 import 'ui/theme/app_colors.dart';
 import 'ui/theme/app_theme.dart';
+import 'ui/theme/wind_theme_data.dart';
 import 'ui/translate/translate_screen.dart';
 import 'ui/vocabulary/vocabulary_screen.dart';
 
@@ -25,24 +27,27 @@ class SubtitleLearnApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appearance = ref.watch(settingsProvider.select((s) => s.appearance));
     final seen = ref.watch(settingsProvider.select((s) => s.hasSeenOnboarding));
-    return CupertinoApp(
-      title: 'Subtitle Learn',
-      theme: AppTheme.of(appearance.brightness),
-      // The text selection toolbar on Android looks up Material strings.
-      localizationsDelegates: const [
-        DefaultMaterialLocalizations.delegate,
-        DefaultCupertinoLocalizations.delegate,
-        DefaultWidgetsLocalizations.delegate,
-      ],
-      // Onboarding covers the app instead of replacing it, so the tabs keep their state underneath.
-      home: Stack(
-        children: [
-          const _Shell(),
-          if (!seen)
-            Positioned.fill(
-              child: OnboardingScreen(onFinish: () => ref.read(settingsProvider.notifier).setHasSeenOnboarding(true)),
-            ),
+    return WindTheme(
+      data: appWindTheme(appearance.brightness),
+      child: CupertinoApp(
+        title: 'Subtitle Learn',
+        theme: AppTheme.of(appearance.brightness),
+        // The text selection toolbar on Android looks up Material strings.
+        localizationsDelegates: const [
+          DefaultMaterialLocalizations.delegate,
+          DefaultCupertinoLocalizations.delegate,
+          DefaultWidgetsLocalizations.delegate,
         ],
+        // Onboarding covers the app instead of replacing it, so the tabs keep their state underneath.
+        home: Stack(
+          children: [
+            const _Shell(),
+            if (!seen)
+              Positioned.fill(
+                child: OnboardingScreen(onFinish: () => ref.read(settingsProvider.notifier).setHasSeenOnboarding(true)),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -121,7 +126,14 @@ class _ShellState extends ConsumerState<_Shell> with WidgetsBindingObserver {
     final tab = ref.watch(tabProvider);
     final showBar = !(inQuiz && tab == AppTab.quiz);
 
-    final bar = CupertinoTabBar(currentIndex: tab.index, onTap: _select, items: _items);
+    final bar = CupertinoTabBar(
+      currentIndex: tab.index,
+      onTap: _select,
+      items: _items,
+      backgroundColor: context.cardBackground.withValues(alpha: 0.94),
+      border: Border(top: BorderSide(color: context.hairline, width: 0.5)),
+      inactiveColor: context.mutedText,
+    );
     Widget body = IndexedStack(index: tab.index, children: _screens);
     if (showBar) {
       // The tab bar takes the home indicator inset and sits under the keyboard, so the pages above it

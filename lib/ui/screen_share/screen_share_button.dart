@@ -36,7 +36,7 @@ class ScreenShareButton extends StatelessWidget {
     return AppButton(
       label: _title,
       style: active ? AppButtonStyle.destructive : AppButtonStyle.filled,
-      icon: Icon(active ? CupertinoIcons.stop_fill : CupertinoIcons.rectangle_on_rectangle),
+      icon: active ? CupertinoIcons.stop_fill : CupertinoIcons.rectangle_on_rectangle,
       onPressed: _canStart ? (active ? onStop : onStart) : null,
     );
   }

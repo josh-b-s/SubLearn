@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
-import '../theme/app_colors.dart';
-import '../theme/app_text.dart';
+import '../theme/wind_classes.dart';
 import 'onboarding_page.dart';
 
 class OnboardingPageView extends StatelessWidget {
@@ -14,21 +14,22 @@ class OnboardingPageView extends StatelessWidget {
     // Scrolls so large font sizes still fit.
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
-      child: Column(
-        spacing: 20,
+      child: WDiv(
+        className: 'flex flex-col items-center gap-5',
         children: [
-          ExcludeSemantics(child: Icon(page.icon, size: 72, color: context.accent)),
+          ExcludeSemantics(
+            child: WDiv(
+              className: 'flex items-center justify-center size-28 rounded-card bg-iris-500/10 dark:bg-brand-400/15',
+              child: WIcon(page.icon, className: 'text-[56px] text-iris-500 dark:text-brand-400'),
+            ),
+          ),
           Semantics(
             header: true,
-            child: Text(page.title, textAlign: TextAlign.center, style: context.title1.copyWith(fontWeight: FontWeight.bold)),
+            child: WText(page.title, className: 'text-[28px] font-bold text-center $inkTextClass'),
           ),
-          Text(page.text, textAlign: TextAlign.center, style: context.body.copyWith(color: context.mutedText)),
+          WText(page.text, className: 'text-[17px] text-center $mutedTextClass'),
           if (page.note != null)
-            Text(
-              page.note!,
-              textAlign: TextAlign.center,
-              style: context.footnote.copyWith(color: context.accent, fontWeight: FontWeight.w500),
-            ),
+            WText(page.note!, className: 'text-[13px] font-medium text-center text-brand-500 dark:text-brand-400'),
         ],
       ),
     );

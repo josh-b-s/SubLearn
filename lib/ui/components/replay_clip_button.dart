@@ -46,7 +46,7 @@ class _ReplayClipButtonState extends ConsumerState<ReplayClipButton> {
         style: AppButtonStyle.tinted,
         expand: false,
         onPressed: _playing ? null : _play,
-        icon: Icon(_playing ? CupertinoIcons.volume_up : CupertinoIcons.play_fill),
+        icon: _playing ? CupertinoIcons.volume_up : CupertinoIcons.play_fill,
       ),
     );
   }

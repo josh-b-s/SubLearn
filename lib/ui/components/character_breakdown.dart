@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import '../../models/char_gloss.dart';
-import '../theme/app_colors.dart';
+import '../theme/wind_classes.dart';
 import 'section_label.dart';
+import 'pinyin.dart';
 
 /// Per-character meanings for the word detail sheet.
 class CharacterBreakdown extends StatelessWidget {
@@ -12,25 +14,18 @@ class CharacterBreakdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return WDiv(
+      className: 'flex flex-col items-start gap-2',
       children: [
-        const SectionLabel('CHARACTERS'),
-        const SizedBox(height: 8),
+        const SectionLabel('Characters'),
         for (final gloss in glosses)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(gloss.char, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
-                const SizedBox(width: 10),
-                Text(gloss.pinyin, style: TextStyle(color: context.accent)),
-                const SizedBox(width: 10),
-                Expanded(child: Text(gloss.meaning, style: TextStyle(color: context.mutedText))),
-              ],
-            ),
+          WDiv(
+            className: 'flex flex-row items-baseline gap-[10px]',
+            children: [
+              WText(gloss.char, className: 'text-[22px] font-semibold $inkTextClass'),
+              Pinyin(gloss.pinyin),
+              WDiv(className: 'flex-1', child: WText(gloss.meaning, className: mutedTextClass)),
+            ],
           ),
       ],
     );

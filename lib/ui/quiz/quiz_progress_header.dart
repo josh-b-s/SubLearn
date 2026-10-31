@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import '../components/progress_bar.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text.dart';
+import '../theme/wind_classes.dart';
 
 /// "4 / 10", percent complete and a bar, shown above each question.
 class QuizProgressHeader extends StatelessWidget {
@@ -19,14 +19,14 @@ class QuizProgressHeader extends StatelessWidget {
       label: 'Quiz progress',
       value: 'Question $index of $total',
       excludeSemantics: true,
-      child: Column(
-        spacing: 8,
+      child: WDiv(
+        className: 'flex flex-col items-stretch gap-2',
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          WDiv(
+            className: 'flex flex-row justify-between items-center w-full',
             children: [
-              Text('$index / $total', style: context.body.copyWith(color: context.accent, fontWeight: FontWeight.w600)),
-              Text('${(fraction * 100).round()}% Complete', style: context.subhead.copyWith(color: context.mutedText)),
+              WText('$index / $total', className: 'text-[17px] font-semibold text-brand-500 dark:text-brand-400'),
+              WText('${(fraction * 100).round()}% complete', className: 'text-[15px] $mutedTextClass'),
             ],
           ),
           TweenAnimationBuilder<double>(

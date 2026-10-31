@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
+
 import '../theme/app_colors.dart';
+import '../theme/wind_classes.dart';
 
 /// Minus and plus pill, like UIStepper. A null callback greys out that side.
 class StepperControl extends StatelessWidget {
@@ -19,20 +22,13 @@ class StepperControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.resolve(CupertinoColors.tertiarySystemFill),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: SizedBox(
-        width: 94,
-        height: 32,
-        child: Row(children: [
-          Expanded(child: _Side(icon: CupertinoIcons.minus, label: decrementLabel, onPressed: onDecrement)),
-          SizedBox(width: 1 / MediaQuery.devicePixelRatioOf(context), height: 16, child: ColoredBox(color: context.hairline)),
-          Expanded(child: _Side(icon: CupertinoIcons.plus, label: incrementLabel, onPressed: onIncrement)),
-        ]),
-      ),
+    return WDiv(
+      className: 'flex flex-row items-center w-[94px] h-8 rounded-lg bg-night-100 dark:bg-night-800',
+      children: [
+        Expanded(child: _Side(icon: CupertinoIcons.minus, label: decrementLabel, onPressed: onDecrement)),
+        const WDiv(className: 'w-px h-4 $hairlineClass'),
+        Expanded(child: _Side(icon: CupertinoIcons.plus, label: incrementLabel, onPressed: onIncrement)),
+      ],
     );
   }
 }

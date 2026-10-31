@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttersdk_wind/fluttersdk_wind.dart';
 
 import '../../state/dictionary_provider.dart';
 import '../../state/settings_provider.dart';
@@ -12,8 +13,7 @@ import '../components/pill_chip.dart';
 import '../components/section_label.dart';
 import '../components/word_card.dart';
 import '../components/word_detail_sheet.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_shape.dart';
+import '../theme/wind_classes.dart';
 import '../theme/app_text.dart';
 import 'listening_bar.dart';
 
@@ -117,42 +117,38 @@ class _InputCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 6, 6, 6),
-      decoration: BoxDecoration(color: context.cardBackground, borderRadius: const BorderRadius.all(cardRadius)),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: CupertinoTextField(
-              controller: controller,
-              onChanged: onChanged,
-              minLines: 1,
-              maxLines: 6,
-              style: context.title2,
-              placeholder: 'Paste or type Chinese text…',
-              decoration: null,
-              padding: const EdgeInsets.symmetric(vertical: 10),
-            ),
+    return WDiv(
+      className: 'flex flex-row items-end w-full pl-5 pr-[6px] py-[6px] $cardClass',
+      children: [
+        Expanded(
+          child: CupertinoTextField(
+            controller: controller,
+            onChanged: onChanged,
+            minLines: 1,
+            maxLines: 6,
+            style: context.title2,
+            placeholder: 'Paste or type Chinese text…',
+            decoration: null,
+            padding: const EdgeInsets.symmetric(vertical: 10),
           ),
-          Semantics(
-            button: true,
-            label: 'Speak Chinese',
-            hint: 'Starts the microphone and turns what you say into text',
-            excludeSemantics: true,
-            onTap: onMic,
-            child: CupertinoButton.filled(
-              padding: const EdgeInsets.all(10),
-              borderRadius: BorderRadius.circular(30),
-              onPressed: () {
-                FocusScope.of(context).unfocus();
-                onMic();
-              },
-              child: const Icon(CupertinoIcons.mic_fill, size: 20),
-            ),
+        ),
+        Semantics(
+          button: true,
+          label: 'Speak Chinese',
+          hint: 'Starts the microphone and turns what you say into text',
+          excludeSemantics: true,
+          onTap: onMic,
+          child: CupertinoButton.filled(
+            padding: const EdgeInsets.all(10),
+            borderRadius: BorderRadius.circular(30),
+            onPressed: () {
+              FocusScope.of(context).unfocus();
+              onMic();
+            },
+            child: const Icon(CupertinoIcons.mic_fill, size: 20),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -171,27 +167,30 @@ class _Breakdown extends ConsumerWidget {
     final hideLearned = ref.watch(settingsProvider.select((s) => s.hideLearnedInTranslate));
 
     if (dictionary.hasError) {
-      return Text(
+      return const WText(
         "The dictionary couldn't be loaded. Check that assets/zh-en.tsv is listed in pubspec.yaml.",
-        style: TextStyle(color: context.errorText),
+        className: 'text-red-700 dark:text-red-400',
       );
     }
     if (!dictionary.hasValue) {
-      return const Row(spacing: 8, children: [CupertinoActivityIndicator(), Text('Loading dictionary…')]);
+      return const WDiv(
+        className: 'flex flex-row items-center gap-2',
+        children: [CupertinoActivityIndicator(), WText('Loading dictionary…')],
+      );
     }
     if (hasInput && tokens.isEmpty) {
-      return Text('No Chinese characters found.', style: TextStyle(color: context.mutedText));
+      return const WText('No Chinese characters found.', className: mutedTextClass);
     }
     if (tokens.isEmpty) return const SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return WDiv(
+      className: 'flex flex-col items-start gap-2',
       children: [
         if (!isListening)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          WDiv(
+            className: 'flex flex-row justify-between items-center w-full',
             children: [
-              const SectionLabel('INTERACTIVE BREAKDOWN'),
+              const SectionLabel('Tap a word for details'),
               PillChip(
                 icon: CupertinoIcons.eye_slash,
                 label: 'Hide learned',
@@ -201,10 +200,8 @@ class _Breakdown extends ConsumerWidget {
               ),
             ],
           ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
+        WDiv(
+          className: 'wrap gap-3',
           children: [
             for (final token in tokens)
               WordCard(
