@@ -8,6 +8,19 @@ Live Mandarin subtitles for the video you are already watching, and a quiz built
 
 Most Mandarin learners hit the same wall: they can study word lists, but the video they actually want to understand is too fast and has no subtitles they can use. SubLearn listens to audio playing on your phone and shows each word as a card with pinyin and meanings. One tap saves a word. A spaced repetition quiz brings it back until you know it, and the subtitles then stop showing hints for words you have learned.
 
+<table>
+  <tr>
+    <td width="33%" valign="top"><img src="docs/gifs/overlay-demo.gif" alt="Live subtitle overlay" width="100%"></td>
+    <td width="33%" valign="top"><img src="docs/gifs/quiz.gif" alt="Quiz" width="100%"></td>
+    <td width="33%" valign="top"><img src="docs/images/stats.png" alt="Stats" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Live subtitle overlay</sub></td>
+    <td align="center"><sub>Quiz</sub></td>
+    <td align="center"><sub>Stats</sub></td>
+  </tr>
+</table>
+
 ## What it does
 
 - **Subtitles over any app.** Start Screen Share, play a Mandarin video, and word cards appear in a floating window. The source can be system audio or the microphone.
