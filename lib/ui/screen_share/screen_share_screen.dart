@@ -115,7 +115,7 @@ class _Content extends ConsumerWidget {
           if (state.phase == ScreenSharePhase.live && !state.pipActive) ...[
             const SizedBox(height: 20),
             AppButton(
-              label: 'Show PiP',
+              label: 'Show subtitles',
               style: AppButtonStyle.tinted,
               icon: CupertinoIcons.rectangle_on_rectangle,
               onPressed: controller.presentPip,

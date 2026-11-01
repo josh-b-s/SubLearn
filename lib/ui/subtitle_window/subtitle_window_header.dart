@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'subtitle_colors.dart';
+
 /// What a drag on the title bar does. The host decides how to move or resize its window.
 enum SubtitleWindowGesture { move, resize }
 
@@ -7,12 +9,14 @@ enum SubtitleWindowGesture { move, resize }
 class SubtitleWindowHeader extends StatelessWidget {
   const SubtitleWindowHeader({
     super.key,
+    required this.colors,
     required this.onGestureStart,
     required this.onGestureUpdate,
     required this.onGestureEnd,
     required this.onOpenApp,
   });
 
+  final SubtitleColors colors;
   final ValueChanged<SubtitleWindowGesture> onGestureStart;
 
   /// Finger movement since the last update, in the window's own coordinates. A host that moves
@@ -22,21 +26,19 @@ class SubtitleWindowHeader extends StatelessWidget {
   final VoidCallback onOpenApp;
 
   static const height = 36.0;
-  static const _background = Color(0xFFD9D9D9);
-  static const _ink = Color(0xFF111111);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: height,
-      color: _background,
+      color: colors.bar,
       child: Row(
         children: [
           _dragArea(
             SubtitleWindowGesture.resize,
             label: 'Resize subtitle window',
             width: 44,
-            child: const CustomPaint(size: Size(18, 18), painter: _ResizeGlyphPainter(_ink)),
+            child: CustomPaint(size: Size(18, 18), painter: _ResizeGlyphPainter(colors.ink)),
           ),
           Expanded(
             child: _dragArea(
@@ -45,7 +47,7 @@ class SubtitleWindowHeader extends StatelessWidget {
               child: Container(
                 width: 36,
                 height: 4,
-                decoration: BoxDecoration(color: const Color(0x33000000), borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(color: colors.muted.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(2)),
               ),
             ),
           ),
@@ -55,7 +57,7 @@ class SubtitleWindowHeader extends StatelessWidget {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: onOpenApp,
-              child: const SizedBox(width: 44, height: height, child: Icon(Icons.open_in_new, size: 20, color: _ink)),
+              child: SizedBox(width: 44, height: height, child: Icon(Icons.open_in_new, size: 20, color: colors.ink)),
             ),
           ),
         ],

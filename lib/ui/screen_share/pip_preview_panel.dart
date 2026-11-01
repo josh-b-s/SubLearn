@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../models/session/pip_line.dart';
-import 'pip_preview_card.dart';
+import '../subtitle_window/subtitle_colors.dart';
+import '../subtitle_window/subtitle_window_card.dart';
 import 'subtitle_line_layout.dart';
 
-/// What the PiP window shows, drawn in the app. The cards are not tappable, same as the window.
+/// What the subtitle window shows, minus its title bar, drawn in the app. The cards are not tappable.
 class PipPreviewPanel extends StatelessWidget {
   const PipPreviewPanel({super.key, required this.lines});
 
@@ -15,22 +16,12 @@ class PipPreviewPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = SubtitleColors.of(CupertinoTheme.brightnessOf(context));
     return Container(
       height: height,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFEBEBEB), Color(0xFFD1D1D1)],
-        ),
-      ),
+      color: colors.body,
       child: lines.isEmpty
-          ? const Center(
-              child: Text(
-                'Listening…',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF4D4D4D)),
-              ),
-            )
+          ? Center(child: Text('Listening…', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: colors.muted)))
           : Padding(
               padding: const EdgeInsets.all(12),
               child: Align(
@@ -43,7 +34,8 @@ class PipPreviewPanel extends StatelessWidget {
                   ],
                   children: [
                     for (final line in lines)
-                      for (final token in line.tokens) PipPreviewCard(key: ValueKey('${line.id}-${token.id}'), token: token),
+                      for (final token in line.tokens)
+                        SubtitleWindowCard(key: ValueKey('${line.id}-${token.id}'), token: token, colors: colors, compact: true),
                   ],
                 ),
               ),

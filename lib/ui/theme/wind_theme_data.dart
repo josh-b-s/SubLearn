@@ -45,14 +45,9 @@ final _colors = {'brand': _brand, 'iris': _iris, 'night': _night, 'gold': _gold}
 // Wind only reads radii from this map, so these back `rounded-card` and the rest.
 const _radii = {'card': 22.0, 'tile': 18.0, 'control': 14.0, 'chip': 10.0};
 
-// One instance per mode, so WindTheme sees the same data until the appearance changes.
-final _system = WindThemeData(colors: _colors, borderRadius: _radii);
+// One instance per mode, so WindTheme sees the same data until the brightness changes.
 final _light = WindThemeData(colors: _colors, borderRadius: _radii, brightness: Brightness.light, syncWithSystem: false);
 final _dark = WindThemeData(colors: _colors, borderRadius: _radii, brightness: Brightness.dark, syncWithSystem: false);
 
-/// A null [brightness] follows the system setting.
-WindThemeData appWindTheme(Brightness? brightness) => switch (brightness) {
-      null => _system,
-      Brightness.light => _light,
-      Brightness.dark => _dark,
-    };
+/// Pass the brightness the app is showing. Wind doesn't re-read the platform when its data is replaced.
+WindThemeData appWindTheme(Brightness brightness) => brightness == Brightness.dark ? _dark : _light;

@@ -27,27 +27,29 @@ class SubtitleLearnApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appearance = ref.watch(settingsProvider.select((s) => s.appearance));
     final seen = ref.watch(settingsProvider.select((s) => s.hasSeenOnboarding));
-    return WindTheme(
-      data: appWindTheme(appearance.brightness),
-      child: CupertinoApp(
-        title: 'Subtitle Learn',
-        theme: AppTheme.of(appearance.brightness),
-        // The text selection toolbar on Android looks up Material strings.
-        localizationsDelegates: const [
-          DefaultMaterialLocalizations.delegate,
-          DefaultCupertinoLocalizations.delegate,
-          DefaultWidgetsLocalizations.delegate,
+    return CupertinoApp(
+      title: 'Subtitle Learn',
+      theme: AppTheme.of(appearance.brightness),
+      // Wind needs the resolved brightness, so System is read from the platform here, inside the app where it updates.
+      builder: (context, child) => WindTheme(
+        data: appWindTheme(appearance.brightness ?? MediaQuery.platformBrightnessOf(context)),
+        child: child!,
+      ),
+      // The text selection toolbar on Android looks up Material strings.
+      localizationsDelegates: const [
+        DefaultMaterialLocalizations.delegate,
+        DefaultCupertinoLocalizations.delegate,
+        DefaultWidgetsLocalizations.delegate,
+      ],
+      // Onboarding covers the app instead of replacing it, so the tabs keep their state underneath.
+      home: Stack(
+        children: [
+          const _Shell(),
+          if (!seen)
+            Positioned.fill(
+              child: OnboardingScreen(onFinish: () => ref.read(settingsProvider.notifier).setHasSeenOnboarding(true)),
+            ),
         ],
-        // Onboarding covers the app instead of replacing it, so the tabs keep their state underneath.
-        home: Stack(
-          children: [
-            const _Shell(),
-            if (!seen)
-              Positioned.fill(
-                child: OnboardingScreen(onFinish: () => ref.read(settingsProvider.notifier).setHasSeenOnboarding(true)),
-              ),
-          ],
-        ),
       ),
     );
   }

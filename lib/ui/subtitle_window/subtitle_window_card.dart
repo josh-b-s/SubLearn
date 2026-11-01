@@ -2,36 +2,45 @@ import 'package:flutter/material.dart';
 
 import '../../models/word_token.dart';
 import '../components/pinyin.dart';
+import 'subtitle_colors.dart';
 
-/// One word in the floating window. Colours are fixed because the window is drawn outside the app's theme.
+/// One word in the floating window and in the in-app preview. [compact] is the smaller size the preview
+/// panel uses. Colours come in as [colors] because the overlay is drawn outside the app's theme.
 class SubtitleWindowCard extends StatelessWidget {
-  const SubtitleWindowCard({super.key, required this.token});
+  const SubtitleWindowCard({super.key, required this.token, required this.colors, this.compact = false});
 
   final WordToken token;
-
-  static const _ink = Color(0xFF1A1A1A);
-  static const _grey = Color(0xFF8E8E93);
+  final SubtitleColors colors;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 180),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+      constraints: BoxConstraints(maxWidth: compact ? 92 : 180),
+      padding: EdgeInsets.symmetric(horizontal: compact ? 10 : 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: colors.card,
+        borderRadius: BorderRadius.circular(compact ? 12 : 14),
+        border: Border.all(color: colors.border),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         spacing: 2,
         children: [
-          Text(token.text, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: _ink)),
+          Text(token.text, style: TextStyle(fontSize: compact ? 22 : 20, fontWeight: FontWeight.w600, color: colors.ink)),
           if (token.pinyin.isNotEmpty && !token.hidePinyin)
-            Pinyin(token.pinyin, brightness: Brightness.light, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            Pinyin(
+              token.pinyin,
+              brightness: colors.brightness,
+              style: TextStyle(fontSize: compact ? 12 : 13, fontWeight: FontWeight.w600),
+            ),
           if (token.meanings.isNotEmpty && !token.hideMeaning)
             Text(
               token.meanings.take(2).join(' · '),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, color: _grey),
+              style: TextStyle(fontSize: compact ? 11 : 12, color: colors.muted),
             ),
         ],
       ),

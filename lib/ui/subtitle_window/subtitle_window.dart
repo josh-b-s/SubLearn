@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/session/pip_line.dart';
+import 'subtitle_colors.dart';
 import 'subtitle_window_card.dart';
 import 'subtitle_window_header.dart';
 
@@ -24,15 +25,15 @@ class SubtitleWindow extends StatelessWidget {
   final VoidCallback onGestureEnd;
   final VoidCallback onOpenApp;
 
-  static const _body = Color(0xFFA6A6A6);
-
   @override
   Widget build(BuildContext context) {
+    final colors = SubtitleColors.of(MediaQuery.platformBrightnessOf(context));
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: Column(
         children: [
           SubtitleWindowHeader(
+            colors: colors,
             onGestureStart: onGestureStart,
             onGestureUpdate: onGestureUpdate,
             onGestureEnd: onGestureEnd,
@@ -40,11 +41,11 @@ class SubtitleWindow extends StatelessWidget {
           ),
           Expanded(
             child: ColoredBox(
-              color: _body,
+              color: colors.body,
               child: SizedBox.expand(
                 child: lines.isEmpty
-                    ? const Center(child: Text('Listening…', style: TextStyle(fontSize: 14, color: Color(0xFF3D3D3D))))
-                    : _Lines(lines: lines),
+                    ? Center(child: Text('Listening…', style: TextStyle(fontSize: 14, color: colors.muted)))
+                    : _Lines(lines: lines, colors: colors),
               ),
             ),
           ),
@@ -55,9 +56,10 @@ class SubtitleWindow extends StatelessWidget {
 }
 
 class _Lines extends StatelessWidget {
-  const _Lines({required this.lines});
+  const _Lines({required this.lines, required this.colors});
 
   final List<PipLine> lines;
+  final SubtitleColors colors;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +75,7 @@ class _Lines extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                for (final token in line.tokens) SubtitleWindowCard(key: ValueKey('${line.id}-${token.id}'), token: token),
+                for (final token in line.tokens) SubtitleWindowCard(key: ValueKey('${line.id}-${token.id}'), token: token, colors: colors),
               ],
             ),
           ),

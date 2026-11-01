@@ -37,7 +37,7 @@ Widgets are styled with [Wind](https://github.com/fluttersdk/wind) class strings
 - [x] The transcript button sits in the app bar whenever the saved transcript has lines, including when idle.
 - [x] The summary and the transcript open as full-screen dialogs with a Done button. The extra "View transcript" button is gone.
 - [x] The "Hide learned" chip on the live screen is gone. The setting lives only in Settings.
-- [x] "Show PiP" shows only while live and the PiP window is closed.
+- [x] "Show subtitles" (was "Show PiP" in Swift) shows only while live and the subtitle window is closed.
 - [x] Saving or removing a word in the transcript gives a selection haptic.
 
 ### Screen Share: Android
