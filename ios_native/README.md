@@ -50,7 +50,7 @@ Run `flutter create --platforms=ios .` first if there is no `ios/` folder, then 
 
 ## Trying it
 
-- Screen Share tab, pick Screen audio, tap Start, choose Subtitle Learn in the sheet, tap Start Broadcast. Open a video with Mandarin speech. The PiP window opens by itself, retrying for a few seconds while the sheet closes.
+- Screen Share tab, pick Screen audio, tap Start, choose SubLearn in the sheet, tap Start Broadcast. Open a video with Mandarin speech. The PiP window opens by itself, retrying for a few seconds while the sheet closes.
 - Mic mode skips the extension and listens through the microphone.
 - If the tab says the broadcast extension was not found, step 5 or the App Group in step 4 is wrong.
 

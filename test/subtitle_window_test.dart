@@ -53,7 +53,7 @@ void main() {
 
     await tester.drag(find.bySemanticsLabel('Resize subtitle window'), const Offset(20, 20));
     await tester.drag(find.bySemanticsLabel('Move subtitle window'), const Offset(20, 20));
-    await tester.tap(find.bySemanticsLabel('Open Subtitle Learn'));
+    await tester.tap(find.bySemanticsLabel('Open SubLearn'));
 
     expect(log, containsAllInOrder(['start resize', 'end', 'start move', 'end', 'open']));
     semantics.dispose();

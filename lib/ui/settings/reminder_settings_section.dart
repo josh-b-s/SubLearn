@@ -29,7 +29,7 @@ class ReminderSettingsSection extends ConsumerWidget {
           final openSettings = await showConfirmAlert(
             context,
             title: 'Notifications are off',
-            message: 'Allow notifications for Subtitle Learn in your device settings to get review reminders.',
+            message: 'Allow notifications for SubLearn in your device settings to get review reminders.',
             confirmLabel: 'Open Settings',
           );
           if (openSettings) AppSettings.openAppSettings(type: AppSettingsType.notification);

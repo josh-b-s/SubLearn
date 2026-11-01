@@ -16,7 +16,7 @@ class AboutScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           const _Heading('App'),
-          const Text('Subtitle Learn 1.0.0'),
+          const Text('SubLearn 1.0.0'),
           const SizedBox(height: 4),
           const Text(
             'Learn Mandarin from the video and audio you already watch. Live subtitles appear as tappable word cards, saved words go into a spaced repetition quiz.',

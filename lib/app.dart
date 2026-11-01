@@ -28,7 +28,7 @@ class SubtitleLearnApp extends ConsumerWidget {
     final appearance = ref.watch(settingsProvider.select((s) => s.appearance));
     final seen = ref.watch(settingsProvider.select((s) => s.hasSeenOnboarding));
     return CupertinoApp(
-      title: 'Subtitle Learn',
+      title: 'SubLearn',
       theme: AppTheme.of(appearance.brightness),
       // Wind needs the resolved brightness, so System is read from the platform here, inside the app where it updates.
       builder: (context, child) => WindTheme(

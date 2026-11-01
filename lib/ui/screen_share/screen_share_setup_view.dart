@@ -57,7 +57,7 @@ class ScreenShareSetupView extends ConsumerWidget {
         const SizedBox(height: 24),
         if (waiting) ...[
           Text(
-            'In the sheet that opened, choose Subtitle Learn and tap Start Broadcast.',
+            'In the sheet that opened, choose SubLearn and tap Start Broadcast.',
             style: text.bodyMedium,
           ),
           const SizedBox(height: 12),

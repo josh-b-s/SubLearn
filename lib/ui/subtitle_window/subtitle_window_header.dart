@@ -53,7 +53,7 @@ class SubtitleWindowHeader extends StatelessWidget {
           ),
           Semantics(
             button: true,
-            label: 'Open Subtitle Learn',
+            label: 'Open SubLearn',
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: onOpenApp,
