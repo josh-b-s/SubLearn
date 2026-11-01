@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 struct PipToken: Identifiable {
     /// Position in its line. Zero marks the first card of a line.
@@ -35,7 +35,11 @@ struct PipLine: Identifiable {
 final class PipSubtitleModel: ObservableObject {
     @Published var lines: [PipLine] = []
 
+    /// Follows the system appearance, read each time lines arrive.
+    @Published var isDark = UIScreen.main.traitCollection.userInterfaceStyle == .dark
+
     func set(lines json: [[String: Any]]) {
+        isDark = UIScreen.main.traitCollection.userInterfaceStyle == .dark
         lines = json.compactMap(PipLine.init(json:))
     }
 }

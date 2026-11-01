@@ -11,23 +11,20 @@ struct PipSubtitleView: View {
     static let maxRows = 2
 
     var body: some View {
+        let palette = PipPalette(isDark: model.isDark)
         ZStack(alignment: .topLeading) {
-            LinearGradient(
-                colors: [Color(white: 0.92), Color(white: 0.82)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            palette.body
 
             if model.lines.isEmpty {
                 Text("Listening…")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color(white: 0.3))
+                    .foregroundStyle(palette.muted)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 SubtitleLineLayout(spacing: 8, maxRows: Self.maxRows) {
                     ForEach(model.lines) { line in
                         ForEach(line.tokens) { token in
-                            PipWordCard(token: token)
+                            PipWordCard(token: token, palette: palette)
                                 .layoutValue(key: LineStartKey.self, value: token.id == 0)
                         }
                     }

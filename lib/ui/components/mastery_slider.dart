@@ -17,7 +17,7 @@ class MasterySlider extends StatelessWidget {
   static const _thumb = 28.0;
   static const _trackHeight = 10.0;
   static const _min = 1.0;
-  static const _labels = {1: 'New', 2: '2', 3: '3', Mastery.masteredLevel: 'Mastered'};
+  static const _labels = {1: '1', 2: '2', 3: '3', Mastery.masteredLevel: 'Mastered'};
 
   static final _max = Mastery.masteredLevel.toDouble();
 
